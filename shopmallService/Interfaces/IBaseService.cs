@@ -62,11 +62,18 @@ namespace shopmallService.Interfaces
         /// </summary>
         DataSet SqlQuery(string sql);
 
+        /// <summary>
+        ///  匿名类求和和求记录数List<GroupByModel>
+        /// </summary>
+
+        List<TResult> GetSum<T, TResult>(Expression<Func<T, bool>> whereLambda, Expression<Func<T, TResult>> selectExpression, List<GroupByModel> groupbyList = null) where T : class, new() where TResult : class, new();
 
 
+        /// <summary>
+        /// 匿名类求和和求记录数用Expression<Func<T, object>>
+        /// </summary>
 
-
-
+        List<TResult> GetSum<T, TResult>(Expression<Func<T, bool>> whereLambda, Expression<Func<T, TResult>> selectExpression, Expression<Func<T, object>> groupbyExpression) where T : class, new() where TResult : class, new();
 
         /*
             /// <summary>

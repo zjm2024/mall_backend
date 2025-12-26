@@ -129,7 +129,30 @@ namespace publicClassLibrary.Helpers
             return ds;
         }
 
- 
+        /// <summary>
+        /// 匿名类求和和求记录数用List<GroupByModel>
+        /// </summary>
+
+        public List<TResult> GetSum<T, TResult>(Expression<Func<T, bool>> whereLambda, Expression<Func<T, TResult>> selectExpression, List<GroupByModel> groupbyList = null) where T : class, new() where TResult : class, new()
+        {
+            if (groupbyList == null)
+                return _db.Queryable<T>().Where(whereLambda).Select(selectExpression).ToList();
+            else
+                return _db.Queryable<T>().Where(whereLambda).GroupBy(groupbyList).Select(selectExpression).ToList();
+
+
+        }
+        /// <summary>
+        /// 匿名类求和和求记录数用Expression<Func<T, object>>
+        /// </summary>
+
+        public List<TResult> GetSum<T, TResult>(Expression<Func<T, bool>> whereLambda, Expression<Func<T, TResult>> selectExpression, Expression<Func<T, object>> groupbyExpression) where T : class, new() where TResult : class, new()
+        {
+                return _db.Queryable<T>().Where(whereLambda).GroupBy(groupbyExpression).Select(selectExpression).ToList();
+        }
+
+
+
 
         // 增加实体
 

@@ -101,6 +101,36 @@ namespace shopmallService.Services
             return dataSet;
         }
 
+
+        /// <summary>
+        /// 匿名类求和和求记录数List<GroupByModel>
+        /// </summary>
+
+        public List<TResult> GetSum<T, TResult>(Expression<Func<T, bool>> whereLambda, Expression<Func<T, TResult>> selectExpression, List<GroupByModel> groupbyList = null) where T : class, new() where TResult : class, new()
+        {
+            var allData = _dbHelper.GetSum<T, TResult>( whereLambda, selectExpression, groupbyList);
+            return allData;
+        }
+
+        /// <summary>
+        /// 匿名类求和和求记录数用Expression<Func<T, object>>
+        /// </summary>
+
+        public List<TResult> GetSum<T, TResult>(Expression<Func<T, bool>> whereLambda, Expression<Func<T, TResult>> selectExpression, Expression<Func<T, object>> groupbyExpression) where T : class, new() where TResult : class, new()
+        {
+            var allData = _dbHelper.GetSum<T, TResult>(whereLambda, selectExpression, groupbyExpression);
+            return allData;
+
+        }
+
+
+
+
+
+
+
+
+
         /*
         /// <summary>
         /// 添加实体

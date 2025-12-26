@@ -84,5 +84,14 @@ namespace shopmallService.Controllers
             return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj, Count = totalCount, Subsidiary = 1 };
 
         }
+
+
+
+        [HttpGet]
+        public ResultObject getProductSum(int appType)
+        {
+            var outobj = _productservice.getProductSum(appType);
+            return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj, Count = 1, Subsidiary = 1 };
+        }
     }
 }
