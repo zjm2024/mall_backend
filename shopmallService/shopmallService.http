@@ -1,0 +1,6 @@
+@shopmallService_HostAddress = http://localhost:5227
+
+GET {{shopmallService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

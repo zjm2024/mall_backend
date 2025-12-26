@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36221.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "shopmallService", "shopmallService\shopmallService.csproj", "{523FD319-1C55-4816-917B-10CEBC56ABDA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "publicClassLibrary", "publicClassLibrary\publicClassLibrary.csproj", "{FCEDA1FD-F6B0-4193-89C3-F69FA7C6476D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{523FD319-1C55-4816-917B-10CEBC56ABDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{523FD319-1C55-4816-917B-10CEBC56ABDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{523FD319-1C55-4816-917B-10CEBC56ABDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{523FD319-1C55-4816-917B-10CEBC56ABDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCEDA1FD-F6B0-4193-89C3-F69FA7C6476D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCEDA1FD-F6B0-4193-89C3-F69FA7C6476D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCEDA1FD-F6B0-4193-89C3-F69FA7C6476D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCEDA1FD-F6B0-4193-89C3-F69FA7C6476D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6D4E9B32-0EAB-4882-802E-B90EF8C39802}
+	EndGlobalSection
+EndGlobal
