@@ -23,6 +23,18 @@ namespace shopmallService.Services
             //_dbHelper = dbHelper;
             //_db = db;
         }
+
+        public List<categories> getCategoriesList(int appType)
+        {
+            //加排序
+            List<OrderByModel> orderbyList = OrderByModel.Create(
+              new OrderByModel() { FieldName = "SortOrder", OrderByType = OrderByType.Asc });
+            var list = GetList<categories>(it => it.AppType == appType && it.Status==1, orderbyList);
+            return list;
+        }
+
+
+        /*
         public Dictionary<string, object> getTokenAll()
         {
             string sql = "select * from T_CSC_Token where 1=1 and  Token = 'bb66fea0-18bc-4562-9b3c-0330931db897'  ;";
@@ -146,6 +158,6 @@ namespace shopmallService.Services
             return dynamicList;
         }
 
-
+        */
     }
 }

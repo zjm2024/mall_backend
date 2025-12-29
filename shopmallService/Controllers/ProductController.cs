@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using publicClassLibrary.Entitys;
 using publicClassLibrary.Models;
+using publicClassLibrary.TokenMange;
 using shopmallService.Interfaces;
 using shopmallService.Services;
 using System.Linq.Expressions;
@@ -20,7 +21,20 @@ namespace shopmallService.Controllers
             _productservice = productservice;
         }
 
+
+        /// <summary>
+        /// 根据条件获取实体
+        /// </summary>
         [HttpGet]
+        public ResultObject getCategoriesList(int appType)
+        {
+        
+            var list = _productservice.getCategoriesList(appType);
+            return new ResultObject() { Flag = 1, Message = "获取成功!", Result = list, Count = list.Count, Subsidiary = 1 };
+        }
+
+        /*
+        [HttpGet, Anonymous]
         public ResultObject getTokenAll()
         {
             var list = _productservice.getTokenAll();
@@ -93,5 +107,6 @@ namespace shopmallService.Controllers
             var outobj = _productservice.getProductSum(appType);
             return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj, Count = 1, Subsidiary = 1 };
         }
+        */
     }
 }

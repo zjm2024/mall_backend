@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.Extensions.Options;
 using publicClassLibrary.Configs;
+using publicClassLibrary.TokenMange;
 using shopmallService.Interfaces;
 using shopmallService.Services;
 
@@ -16,7 +18,16 @@ builder.Services.AddScoped<IProductService, ProductService>(); //商品服务
 builder.Services.AddScoped<ICartService, CartService>(); //购物车服务
 builder.Services.AddScoped<IOrderService, OrderService>(); //订单服务
 
-builder.Services.AddControllers();
+//builder.Services.AddControllers();
+
+
+
+// 4.添加控制器
+builder.Services.AddControllers(options =>
+{
+    // 注册全局Token验证过滤器
+    options.Filters.Add<TokenValidationFilter>();
+});
 
 var app = builder.Build();
 

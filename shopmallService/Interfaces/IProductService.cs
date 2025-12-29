@@ -6,6 +6,10 @@ namespace shopmallService.Interfaces
 {
     public interface IProductService:IBaseService
     {
+
+        
+        List<categories> getCategoriesList(int appType);
+        /*
         Dictionary<string, object> getTokenAll();
         List<products> getProductsAll();
 
@@ -21,8 +25,8 @@ namespace shopmallService.Interfaces
 
         List<dynamic> getProductSum(int appType);
 
-  
-   
+  */
+
 
     }
 }
