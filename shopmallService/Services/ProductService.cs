@@ -1,13 +1,9 @@
-﻿using Dm.util;
-using publicClassLibrary.Entitys;
+﻿using publicClassLibrary.Entitys;
 using publicClassLibrary.Helpers;
+using publicClassLibrary.Models;
+using publicClassLibrary.Services;
 using shopmallService.Interfaces;
 using SqlSugar;
-using System.Collections.Generic;
-using System.Data;
-using System.Dynamic;
-using System.Linq.Expressions;
-using System.Text;
 
 namespace shopmallService.Services
 {
@@ -24,14 +20,55 @@ namespace shopmallService.Services
             //_db = db;
         }
 
-        public List<categories> getCategoriesList(int appType)
+        public List<Categories> getCategoriesList(int appType)
         {
             //加排序
             List<OrderByModel> orderbyList = OrderByModel.Create(
               new OrderByModel() { FieldName = "SortOrder", OrderByType = OrderByType.Asc });
-            var list = GetList<categories>(it => it.AppType == appType && it.Status==1, orderbyList);
+            var list = GetList<Categories>(it => it.AppType == appType && it.Status == 1, orderbyList);
             return list;
         }
+
+
+        /// <summary>
+        /// 添加或更新分类
+        /// </summary>
+        /// <param name="Categories">分类cVO</param>
+
+        public ResultObject updateCategories(Categories cVO)
+        {
+            //判断分类名称是否重复
+            string categoryName = cVO.CategoryName;
+            int categoryId = cVO.CategoryId;
+            var exists = RecordExist<Categories, dynamic>(it => it.CategoryName == categoryName, it => it.CategoryId);
+
+            if (exists)
+            {
+                return new ResultObject() { Flag = 0, Message = "分类名称已存在!", Result = null };
+            }
+
+            if (categoryId == 0)
+            {
+
+                int id = Add<Categories>(cVO);
+                if (id > 0)
+                    return new ResultObject() { Flag = 1, Message = "添加成功!", Result = id };
+                else
+                    return new ResultObject() { Flag = 0, Message = "添加失败!", Result = null };
+
+            }
+            else
+            {
+
+                bool isSuccess = Update<Categories>(cVO, it => new { it.CategoryName, it.Icon });
+                if (isSuccess)
+                    return new ResultObject() { Flag = 1, Message = "更新成功!", Result = null };
+                else
+                    return new ResultObject() { Flag = 0, Message = "更新失败!", Result = null };
+            }
+        }
+
+
 
 
         /*

@@ -2,7 +2,7 @@
 using System.Data;
 using System.Linq.Expressions;
 
-namespace shopmallService.Interfaces
+namespace publicClassLibrary.Interfaces
 {
     // 通用基础接口定义
     public interface IBaseService
@@ -28,13 +28,13 @@ namespace shopmallService.Interfaces
         /// <param name="whereLambda">查询条件表达式</param>
         /// <param name="orderExpression">排序表达式</param>
         /// <returns>符合条件的实体列表</returns>
-        List<T> GetList<T>(Expression<Func<T, bool>> whereLambda, List<OrderByModel> orderbyList=null) where T : class, new();
+        List<T> GetList<T>(Expression<Func<T, bool>> whereLambda, List<OrderByModel> orderbyList = null) where T : class, new();
 
 
         /// <summary>
         /// 分页查询+排序
         /// </summary>
-        List<T> GetPageList<T>(int pageIndex, int pageSize, out int totalCount, Expression<Func<T, bool>> whereLambda, List<OrderByModel> orderbyList = null ) where T : class, new();
+        List<T> GetPageList<T>(int pageIndex, int pageSize, out int totalCount, Expression<Func<T, bool>> whereLambda, List<OrderByModel> orderbyList = null) where T : class, new();
 
 
 
@@ -75,44 +75,18 @@ namespace shopmallService.Interfaces
 
         List<TResult> GetSum<T, TResult>(Expression<Func<T, bool>> whereLambda, Expression<Func<T, TResult>> selectExpression, Expression<Func<T, object>> groupbyExpression) where T : class, new() where TResult : class, new();
 
-        /*
-            /// <summary>
-            /// 添加实体
-            /// </summary>
-            /// <param name="entity">实体对象</param>
-            /// <returns>受影响行数</returns>
-            Task<int> InsertAsync(T entity);
 
-            /// <summary>
-            /// 批量添加实体
-            /// </summary>
-            /// <param name="entities">实体列表</param>
-            /// <returns>受影响行数</returns>
-            Task<int> InsertRangeAsync(List<T> entities);
+        /// <summary>
+        /// 是否存在符合条件的记录
+        /// </summary>
+        bool RecordExist<T, TResult>(Expression<Func<T, bool>> whereLambda, Expression<Func<T, TResult>> selectExpression) where T : class, new() where TResult : class, new();
 
-            /// <summary>
-            /// 更新实体
-            /// </summary>
-            /// <param name="entity">实体对象</param>
-            /// <returns>受影响行数</returns>
-            Task<int> UpdateAsync(T entity);
+        int Add<T>(T entity) where T : class, new();
 
-            /// <summary>
-            /// 删除实体
-            /// </summary>
-            /// <param name="id">主键ID</param>
-            /// <returns>受影响行数</returns>
-            Task<int> DeleteAsync(int id);
 
-            /// <summary>
-            /// 批量删除实体
-            /// </summary>
-            /// <param name="ids">主键ID列表</param>
-            /// <returns>受影响行数</returns>
-            Task<int> DeleteRangeAsync(List<int> ids);
 
-            */
-
+        bool Delete<T>(T entity, Expression<Func<T, bool>> whereLambda) where T : class, new();
+        bool Update<T>(T entity, Expression<Func<T, object>> updateColumnsExpression) where T : class, new();
 
 
         #region  异步  Method

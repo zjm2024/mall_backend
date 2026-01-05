@@ -1,0 +1,120 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.SqlServer.Server;
+using publicClassLibrary.Helpers;
+using publicClassLibrary.Models;
+using publicClassLibrary.TokenMange;
+using shopadminService.Interfaces;
+using shopadminService.Services;
+using System.Text.Json;
+using System.Web;
+
+namespace shopadminService.Controllers
+{
+    [Anonymous]
+    [ApiController]
+    [Route("shopadminApi/User/[action]")]
+    public class UserController : ControllerBase
+    {
+        private readonly IHttpContextAccessor _httpContext;
+        private readonly ILogger<UserController> _logger;
+        private readonly IUserService _userservice;
+        public UserController(IHttpContextAccessor httpContext,ILogger<UserController> logger, IUserService userservice)
+        {
+            _httpContext = httpContext;
+            _logger = logger;
+            _userservice = userservice;
+        }
+
+        [HttpPost]
+        public ResultObject validAccount([FromBody] JsonElement formData)
+        {
+
+            JsonElement jValue;
+            string json = ((!formData.TryGetProperty("data", out jValue)) ? "" : jValue.GetRawText());
+            JsonElement jsonElement = System.Text.Json.JsonSerializer.Deserialize<JsonElement>(json);
+   
+            string userName = jsonElement.GetProperty("UserName").ToString();
+            string password = jsonElement.GetProperty("Password").ToString();
+            int appType = Convert.ToInt32(jsonElement.GetProperty("AppType").ToString());
+
+            //加密密码
+            password = MD5Helper.GetMD5(password);
+
+            var result =_userservice.postLogin(userName, password, appType);
+
+            if (result!=null)
+            {
+                var clientIp = _httpContext.HttpContext.Connection.RemoteIpAddress;
+                if (clientIp != null)
+                {
+                    result.LastLoginIp = clientIp.ToString();
+                }
+
+                result.LastLoginTime = DateTime.Now;
+                result.LoginCount = result.LoginCount + 1;
+                result.UpdateTime = DateTime.Now;
+                _userservice.updateLoginInfo(result);
+                return new ResultObject() { Flag = 1, Message = "验证成功!", Result = result };
+
+            }
+            else
+            {
+                return new ResultObject() { Flag = 0, Message = "验证失败!", Result = null };
+            }
+        }
+
+
+
+
+
+        /// <summary>
+        /// 根据pageIndex,pageSize 分页获取实体，自动带输出参数返回总记录
+        /// </summary>
+        [HttpGet]
+        public ResultObject getAdminaccountsPageList([FromBody] JsonElement formData)
+        {
+            JsonElement jValue;
+            string json = ((!formData.TryGetProperty("data", out jValue)) ? "" : jValue.GetRawText());
+            JsonElement jsonElement = System.Text.Json.JsonSerializer.Deserialize<JsonElement>(json);
+
+            int pageIndex = Convert.ToInt32(jsonElement.GetProperty("pageIndex").ToString());
+            int pageSize = Convert.ToInt32(jsonElement.GetProperty("pageSize").ToString());
+            int appType = Convert.ToInt32(jsonElement.GetProperty("appType").ToString());
+
+    
+            int totalCount = 0;
+            var outobj = _userservice.getAdminaccountsPageList(pageIndex, pageSize, appType, out totalCount);
+            return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj, Count = totalCount, Subsidiary = 1 };
+        }
+
+        /// <summary>
+        /// 改用户密码
+        /// </summary>
+        /// <param name="userName">用户ID</param>
+        /// <param name="newPassword">新密码</param>
+        /// <returns></returns>
+        [HttpPost]
+        public ResultObject ChangeUserPassword([FromBody] JsonElement formData)
+        {
+            JsonElement jValue;
+            string json = ((!formData.TryGetProperty("data", out jValue)) ? "" : jValue.GetRawText());
+            JsonElement jsonElement = System.Text.Json.JsonSerializer.Deserialize<JsonElement>(json);
+
+            string userName = jsonElement.GetProperty("UserName").ToString();
+            string oldPassword = jsonElement.GetProperty("Password").ToString();
+            string newPassword = jsonElement.GetProperty("newPassword").ToString();
+            int appType = Convert.ToInt32(jsonElement.GetProperty("AppType").ToString());
+
+            oldPassword = MD5Helper.GetMD5(oldPassword);
+            newPassword = MD5Helper.GetMD5(newPassword);
+
+  
+            bool result = _userservice.changeUserPassword(userName, oldPassword, newPassword, appType);
+            if (result)
+                return new ResultObject() { Flag = 1, Message = "修改成功!", Result = null };
+            else
+                return new ResultObject() { Flag = 0, Message = "密码错误，请重新输入!", Result = null };
+        }
+       
+    }
+}

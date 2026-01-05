@@ -1,10 +1,11 @@
-﻿using publicClassLibrary.Helpers;
-using shopmallService.Interfaces;
+﻿using publicClassLibrary.Entitys;
+using publicClassLibrary.Helpers;
+using publicClassLibrary.Interfaces;
 using SqlSugar;
 using System.Data;
 using System.Linq.Expressions;
 
-namespace shopmallService.Services
+namespace publicClassLibrary.Services
 {
     /// <summary>
     /// 通用基础服务实现类
@@ -125,6 +126,21 @@ namespace shopmallService.Services
 
 
 
+        /// <summary>
+        /// 是否存在符合条件的记录
+        /// </summary>
+        public bool RecordExist<T, TResult>(Expression<Func<T, bool>> whereLambda, Expression<Func<T, TResult>> selectExpression) where T : class, new() where TResult : class, new()
+        {
+            int count = _dbHelper.GetList<T, TResult>(whereLambda, selectExpression).Count();
+            return (count > 0) ? true : false;
+        }
+
+
+
+        public int Add<T>(T entity) where T : class, new()
+        {
+            return _dbHelper.Add<T>(entity);
+        }
 
 
 
@@ -187,17 +203,18 @@ namespace shopmallService.Services
             return await query.CountAsync();
         }
 
-        /// <summary>
-        /// 是否存在符合条件的记录
-        /// </summary>
-        public async Task<bool> ExistsAsync(Expression<Func<T, bool>> whereExpression)
-        {
-            return await _db.Queryable<T>().Where(whereExpression).AnyAsync();
-        }
-
+  
         */
 
+        public bool Delete<T>(T entity, Expression<Func<T, bool>> whereLambda) where T : class, new()
+        {
+            return _dbHelper.Delete<T>(entity, whereLambda);
+        }
 
+       public bool Update<T>(T entity, Expression<Func<T, object>> updateColumnsExpression) where T : class, new()
+        {
+            return _dbHelper.Update<T>(entity, updateColumnsExpression);
+        }
 
 
         #region  异步  Method

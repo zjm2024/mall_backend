@@ -1,11 +1,6 @@
-using Microsoft.AspNetCore.Cors.Infrastructure;
-using Microsoft.Extensions.Options;
 using publicClassLibrary.Configs;
-using publicClassLibrary.Interfaces;
-using publicClassLibrary.Services;
-using publicClassLibrary.TokenMange;
-using shopmallService.Interfaces;
-using shopmallService.Services;
+using shopadminService.Interfaces;
+using shopadminService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,25 +13,13 @@ builder.Services.AddSharedDb(builder);    // 2.使用SqlSugar共享配置
 builder.Services.AddSharedCors(); //3.配置跨域请求
 
 // 4.注册服务
-builder.Services.AddScoped<ITokenService, TokenService>(); //Token服务
+builder.Services.AddScoped<IUserService, UserService>(); //用户服务
+builder.Services.AddScoped<ICategoryService, CategoryService>(); //类型服务
 builder.Services.AddScoped<IProductService, ProductService>(); //商品服务
-builder.Services.AddScoped<ICartService, CartService>(); //购物车服务
-builder.Services.AddScoped<IOrderService, OrderService>(); //订单服务
-
-
 
 builder.Services.AddHttpContextAccessor();
 
-//builder.Services.AddControllers();
-
-
-
-// 4.添加控制器
-builder.Services.AddControllers(options =>
-{
-    // 注册全局Token验证过滤器
-    options.Filters.Add<TokenValidationFilter>();
-});
+builder.Services.AddControllers();
 
 var app = builder.Build();
 

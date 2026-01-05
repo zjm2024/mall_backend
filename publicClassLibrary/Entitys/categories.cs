@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace publicClassLibrary.Entitys
 {
     [SugarTable("mall_categories")]
-    public class categories
+    public class Categories
     {
         [SugarColumn(IsPrimaryKey = true, IsIdentity = true)]
         public int CategoryId { get; set; }

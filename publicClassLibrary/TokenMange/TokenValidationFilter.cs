@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using publicClassLibrary.Interfaces;
 using publicClassLibrary.Models;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,14 @@ namespace publicClassLibrary.TokenMange
     public class TokenValidationFilter : IAsyncActionFilter
     {
         private const string UserToken = "token";
+
+        private readonly ITokenService _tokenService;
+
+        //引用token服务
+        public TokenValidationFilter(ITokenService tokenService)
+        {
+            _tokenService = tokenService;
+        }
 
         /// <summary>
         /// 异步Action执行前拦截（对应旧版OnActionExecuting）
@@ -95,16 +104,16 @@ namespace publicClassLibrary.TokenMange
 
 
 
-            // 判断token是否有效
-            /*
-            if (!CacheManager.TokenIsExist(token))
+            // 判断token是否有效 直接从数据库里查询判断
+            
+            if (!_tokenService.TokenIsExist(token))
             {
-                actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.Unauthorized, new ResultObject() { Flag = 401, Message = "Token 失效", Result = null });
-                return "";
+               // actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.Unauthorized, new ResultObject() { Flag = 401, Message = "Token 失效", Result = null });
+              //  return "";
                 //throw new Exception("Token已失效，请重新登陆!");
             }
 
-            */
+            
 
 
             return !string.IsNullOrEmpty(token) && token.Length > 10; // 示例逻辑
@@ -143,5 +152,10 @@ namespace publicClassLibrary.TokenMange
 
             return token;
         }
+
+
+
+
+
     }
 }

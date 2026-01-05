@@ -3,7 +3,7 @@
 namespace publicClassLibrary.Entitys
 {
     [SugarTable("t_csc_token")]
-    public class token
+    public class Tokens
     {
         [SugarColumn(IsPrimaryKey = true, IsIdentity = true)]
         public int TokenId { get; set; }

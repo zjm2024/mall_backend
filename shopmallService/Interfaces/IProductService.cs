@@ -1,6 +1,7 @@
 ﻿using publicClassLibrary.Entitys;
-using System.Data;
-using System.Linq.Expressions;
+using publicClassLibrary.Interfaces;
+using publicClassLibrary.Models;
+
 
 namespace shopmallService.Interfaces
 {
@@ -8,7 +9,9 @@ namespace shopmallService.Interfaces
     {
 
         
-        List<categories> getCategoriesList(int appType);
+        List<Categories> getCategoriesList(int appType);
+
+        ResultObject updateCategories(Categories cV0);
         /*
         Dictionary<string, object> getTokenAll();
         List<products> getProductsAll();

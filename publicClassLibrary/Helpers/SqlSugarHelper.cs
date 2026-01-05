@@ -188,6 +188,8 @@ namespace publicClassLibrary.Helpers
 
 
 
+
+
         // 删除实体
         public bool Delete<T>(T entity, Expression<Func<T, bool>> whereLambda) where T : class, new()
         {
@@ -203,12 +205,54 @@ namespace publicClassLibrary.Helpers
                 return false;
             }
         }
+        // 通用的修改方法 实体类 传递字段
+        public bool Update<T>(T entity, Expression<Func<T, object>> updateColumnsExpression) where T : class, new()
+        {
+            try
+            {
+                var result = _db.Updateable(entity).UpdateColumns(updateColumnsExpression).ExecuteCommand();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // 记录日志或提示用户
+                return false;
+            }
+        }
 
 
-   
+
+        /*
+
+        // 通用的删除方法 匿名类
+        public int Delete(string tablename, List<Dictionary<string, object>> wherelist)
+        {
+            return _db.Deleteable<object>().AS(tablename).WhereColumns(wherelist).ExecuteCommand();
 
 
+        }
+        // 通用的插入方法 匿名类
+        public int Add(string tablename, List<Dictionary<string, object>> insertdata)
+        {
+            return _db.Insertable(insertdata).AS(tablename).ExecuteReturnIdentity();
 
+        }
+        // 通用的修改方法 匿名类 传递字段和表
+        public bool Update(string tablename, List<Dictionary<string, object>> updatedata, string columnname)
+        {
+            try
+            {
+                 _db.Updateable(updatedata).AS(tablename).WhereColumns(columnname).ExecuteCommand();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // 记录日志或提示用户
+                return false;
+            }
+        }
+        */
 
 
 

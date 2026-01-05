@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using publicClassLibrary.Entitys;
 using publicClassLibrary.Models;
 using publicClassLibrary.TokenMange;
 using shopmallService.Interfaces;
 using shopmallService.Services;
 using System.Linq.Expressions;
+using System.Text.Json;
 
 namespace shopmallService.Controllers
 {
@@ -33,6 +35,21 @@ namespace shopmallService.Controllers
             return new ResultObject() { Flag = 1, Message = "获取成功!", Result = list, Count = list.Count, Subsidiary = 1 };
         }
 
+        /// <summary>
+        /// 更新或插入分类
+        /// </summary>
+        [HttpPost]
+        public ResultObject updateCategories([FromBody] JsonElement formData, string token)
+        {
+            JsonElement jValue;
+            string json = ((!formData.TryGetProperty("categories", out jValue)) ? "" : jValue.GetRawText());
+            var entity = JsonConvert.DeserializeObject(json, typeof(Categories));
+            if (entity == null)
+            {
+                return new ResultObject() { Flag = 0, Message = "参数为空!", Result = null };
+            }
+           return _productservice.updateCategories((Categories)entity);
+        }
         /*
         [HttpGet, Anonymous]
         public ResultObject getTokenAll()

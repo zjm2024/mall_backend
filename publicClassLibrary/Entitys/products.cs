@@ -11,7 +11,7 @@ using static System.Net.Mime.MediaTypeNames;
 namespace publicClassLibrary.Entitys
 {
     [SugarTable("mall_products")]
-    public class products
+    public class Products
     {
         [SugarColumn(IsPrimaryKey = true, IsIdentity = true)]
         public int ProductId { get; set; }

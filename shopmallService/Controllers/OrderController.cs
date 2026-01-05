@@ -23,7 +23,7 @@ namespace shopmallService.Controllers
         }
 
         [HttpGet]
-        public ResultObject TestGet()
+        public ResultObject TestGet(string token)
         {
             string aaa = "sf";
             return new ResultObject() { Flag = 1, Message = "获取成功!", Result = aaa, Count = 1, Subsidiary = 1 };
@@ -35,7 +35,7 @@ namespace shopmallService.Controllers
         {
             JsonElement jValue;
             string json = ((!formData.TryGetProperty("prod", out jValue)) ? "" : jValue.GetRawText());
-            var prodentity = JsonConvert.DeserializeObject(json, typeof(products));
+            var prodentity = JsonConvert.DeserializeObject(json, typeof(Products));
 
             string aaa = "sf";
             return new ResultObject() { Flag = 1, Message = "获取成功!", Result = prodentity, Count = 1, Subsidiary = 1 };
