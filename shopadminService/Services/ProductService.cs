@@ -21,14 +21,34 @@ namespace shopadminService.Services
         }
 
 
-        public List<Products> getProductsPageList(int pageIndex, int pageSize, int appType, out int totalCount)
+        public List<Products> getProductsPageList(int pageIndex, int pageSize, int appType, int? productStatus, out int totalCount)
         {
             //加排序
 
             List<OrderByModel> orderbyList = OrderByModel.Create(
                new OrderByModel() { FieldName = "ProductId", OrderByType = OrderByType.Desc });
 
-            var list = GetPageList<Products>(pageIndex, pageSize, out totalCount, it => it.AppType == appType, orderbyList);
+            Expression expbody = null;
+
+            ParameterExpression param = Expression.Parameter(typeof(Products), "it");
+            Expression expappType = Expression.Equal(Expression.Property(param, "AppType"), Expression.Constant(appType));
+
+            expbody = expappType;
+
+
+            if (productStatus != null)
+            {
+                Expression expstatus = Expression.Equal(Expression.Property(param, "ProductStatus"), Expression.Constant(productStatus));
+                expbody = Expression.AndAlso(expappType, expstatus);
+            }
+
+
+            Expression<Func<Products, bool>> lambdaExpression = Expression.Lambda<Func<Products, bool>>(
+                expbody,
+                param
+            );
+
+            var list = GetPageList<Products>(pageIndex, pageSize, out totalCount, lambdaExpression, orderbyList);
             return list;
         }
 

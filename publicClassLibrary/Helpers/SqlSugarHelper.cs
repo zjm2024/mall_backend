@@ -54,7 +54,7 @@ namespace publicClassLibrary.Helpers
         }
 
         /// <summary>
-        /// 条件查询+排序
+        /// 条件查询(表达式)+排序
         /// </summary>
         public List<T> GetList<T>(Expression<Func<T, bool>> whereLambda, List<OrderByModel> orderbyList  = null) where T : class, new()
         {
@@ -62,6 +62,28 @@ namespace publicClassLibrary.Helpers
                 return _db.Queryable<T>().Where(whereLambda).ToList();
             else
                 return _db.Queryable<T>().Where(whereLambda).OrderBy(orderbyList).ToList();
+        }
+
+        /// <summary>
+        /// 条件查询+排序
+        /// </summary>
+        public List<T> GetList<T>(List<IConditionalModel> condModels, List<OrderByModel> orderbyList = null) where T : class, new()
+        {
+            if (orderbyList == null)
+                return _db.Queryable<T>().Where(condModels).ToList();
+            else
+                return _db.Queryable<T>().Where(condModels).OrderBy(orderbyList).ToList();
+        }
+
+        /// <summary>
+        /// 匿名类条件查询+排序
+        /// </summary>
+        public List<TResult> GetList<T, TResult>(Expression<Func<T, bool>> whereLambda, Expression<Func<T, TResult>> selectExpression, List<OrderByModel> orderbyList = null) where T : class, new() where TResult : class, new()
+        {
+            if (orderbyList == null)
+                return _db.Queryable<T>().Where(whereLambda).Select(selectExpression).ToList();
+            else
+                return _db.Queryable<T>().Where(whereLambda).OrderBy(orderbyList).Select(selectExpression).ToList();
         }
 
 
@@ -82,16 +104,6 @@ namespace publicClassLibrary.Helpers
         }
 
 
-        /// <summary>
-        /// 匿名类条件查询+排序
-        /// </summary>
-        public List<TResult> GetList<T, TResult>(Expression<Func<T, bool>> whereLambda, Expression<Func<T, TResult>> selectExpression, List<OrderByModel> orderbyList = null) where T : class, new() where TResult : class, new()
-        {
-            if (orderbyList == null)
-                return _db.Queryable<T>().Where(whereLambda).Select(selectExpression).ToList();
-            else
-                return _db.Queryable<T>().Where(whereLambda).OrderBy(orderbyList).Select(selectExpression).ToList();
-        }
 
         /// <summary>
         /// 匿名类分页查询+排序
@@ -188,15 +200,13 @@ namespace publicClassLibrary.Helpers
 
 
 
-
-
         // 删除实体
-        public bool Delete<T>(T entity, Expression<Func<T, bool>> whereLambda) where T : class, new()
+        public bool Delete<T>(Expression<Func<T, bool>> whereLambda) where T : class, new()
         {
             try
             {
 
-                _db.Deleteable(entity).Where(whereLambda).ExecuteCommand();
+                _db.Deleteable<T>().Where(whereLambda).ExecuteCommand();
                 return true;
 
             }
@@ -205,6 +215,42 @@ namespace publicClassLibrary.Helpers
                 return false;
             }
         }
+
+
+        // 删除实体根据id
+        public bool Delete<T>(int id) where T : class, new()
+        {
+            try
+            {
+
+                _db.Deleteable<T>().In(id).ExecuteCommand();
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+
+        // 批量删除实体根据ids
+        public bool Delete<T>(List<int> ids) where T : class, new()
+        {
+            try
+            {
+
+                _db.Deleteable<T>().In(ids).ExecuteCommand();
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+
         // 通用的修改方法 实体类 传递字段
         public bool Update<T>(T entity, Expression<Func<T, object>> updateColumnsExpression) where T : class, new()
         {

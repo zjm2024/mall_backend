@@ -36,10 +36,15 @@ namespace shopadminService.Controllers
             int pageIndex = Convert.ToInt32(jsonElement.GetProperty("pageIndex").ToString());
             int pageSize = Convert.ToInt32(jsonElement.GetProperty("pageSize").ToString());
             int appType = Convert.ToInt32(jsonElement.GetProperty("appType").ToString());
+        
+            JsonElement outjValue;
+            int? productStatus = ((!jsonElement.TryGetProperty("productStatus", out outjValue)) ? null : outjValue.GetInt32());
+
+   
 
 
             int totalCount = 0;
-            var outobj = _productservice.getProductsPageList(pageIndex, pageSize, appType, out totalCount);
+            var outobj = _productservice.getProductsPageList(pageIndex, pageSize, appType, productStatus, out totalCount);
             return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj, Count = totalCount, Subsidiary = 1 };
         }
 

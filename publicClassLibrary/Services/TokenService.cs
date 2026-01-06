@@ -53,7 +53,7 @@ namespace publicClassLibrary.Services
         public void RemoveToken(Tokens tVO)
         {
             int tokenId = tVO.TokenId;
-            _dbHelper.Delete<Tokens>(tVO, it => it.TokenId == tokenId);
+            _dbHelper.Delete<Tokens>(it => it.TokenId == tokenId);
         }
         
 

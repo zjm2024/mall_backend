@@ -27,9 +27,9 @@ namespace shopadminService.Controllers
         /// 根据条件获取实体
         /// </summary>
         [HttpGet]
-        public ResultObject getCategoriesList(int appType, int? status)
+        public ResultObject getCategoriesList(int appType, string? categoryName, int? status)
         {
-            var list = _categoryservice.getCategoriesList(appType, status);
+            var list = _categoryservice.getCategoriesList(appType, categoryName, status);
             return new ResultObject() { Flag = 1, Message = "获取成功!", Result = list, Count = list.Count, Subsidiary = 1 };
         }
 
@@ -40,13 +40,22 @@ namespace shopadminService.Controllers
         public ResultObject updateCategories([FromBody] JsonElement formData)
         {
             JsonElement jValue;
-            string json = ((!formData.TryGetProperty("categories", out jValue)) ? "" : jValue.GetRawText());
+            string json = ((!formData.TryGetProperty("data", out jValue)) ? "" : jValue.GetRawText());
             var entity = JsonConvert.DeserializeObject(json, typeof(Categories));
             if (entity == null)
             {
                 return new ResultObject() { Flag = 0, Message = "参数为空!", Result = null };
             }
             return _categoryservice.updateCategories((Categories)entity);
+        }
+
+        /// <summary>
+        /// 删除分类
+        /// </summary>
+        [HttpGet]
+        public ResultObject deleteCategories(int id)
+        { 
+            return _categoryservice.deleteCategories(id);
         }
     }
 }

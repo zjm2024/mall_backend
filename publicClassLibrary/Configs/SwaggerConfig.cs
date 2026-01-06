@@ -56,14 +56,14 @@ namespace publicClassLibrary.Configs
         public static IApplicationBuilder UseSharedSwagger(this IApplicationBuilder app, IWebHostEnvironment env)
         {
             // 配置HTTP请求管道
-            if (env.IsDevelopment())
-            {
-                app.UseSwagger();
+            //if (env.IsDevelopment())
+            //{
+               app.UseSwagger();
                 app.UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "MyProject API V1");
                 });
-            }
+            //}
 
             return app;
         }

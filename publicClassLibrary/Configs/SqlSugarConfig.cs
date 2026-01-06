@@ -54,8 +54,10 @@ namespace publicClassLibrary.Configs
                 ConnectionString = sqlSugarModel.Connection,
                 DbType = sqlSugarModel.DbType,
                 IsAutoCloseConnection = true,
-                InitKeyType = InitKeyType.Attribute
+                InitKeyType = InitKeyType.Attribute,
+
             });
+            _db.Ado.CommandTimeOut = sqlSugarModel.CommandTimeOut;
         }
         public ISqlSugarClient GetDbClient()
         {

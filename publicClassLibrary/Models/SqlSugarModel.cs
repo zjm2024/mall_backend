@@ -21,5 +21,8 @@ namespace publicClassLibrary.Models
 
         /// <summary>是否启用日志</summary>
         public bool IsEnableLog { get; set; } = true;
+
+        /// <summary>超时时间(秒)</summary>
+        public int CommandTimeOut { get; set; } = 60;
     }
 }

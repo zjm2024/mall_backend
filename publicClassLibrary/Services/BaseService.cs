@@ -51,17 +51,14 @@ namespace publicClassLibrary.Services
             return allData;
 
         }
-
         /// <summary>
-        /// 分页查询+排序
+        /// 条件查询+排序
         /// </summary>
-        public  List<T> GetPageList<T>(int pageIndex, int pageSize, out int totalCount, Expression<Func<T, bool>> whereLambda, List<OrderByModel> orderbyList = null) where T : class, new()
+        public List<T> GetList<T>(List<IConditionalModel> condModels, List<OrderByModel> orderbyList = null) where T : class, new()
         {
-
-            var allData =_dbHelper.GetPageList<T>(pageIndex, pageSize, out totalCount,whereLambda, orderbyList);
+            var allData = _dbHelper.GetList<T>(condModels, orderbyList);
             return allData;
         }
-
 
 
         /// <summary>
@@ -72,6 +69,19 @@ namespace publicClassLibrary.Services
             var allData = _dbHelper.GetList<T, TResult>(whereLambda, selectExpression, orderbyList);
             return allData;
         }
+
+
+        /// <summary>
+        /// 分页查询+排序
+        /// </summary>
+        public List<T> GetPageList<T>(int pageIndex, int pageSize, out int totalCount, Expression<Func<T, bool>> whereLambda, List<OrderByModel> orderbyList = null) where T : class, new()
+        {
+
+            var allData =_dbHelper.GetPageList<T>(pageIndex, pageSize, out totalCount,whereLambda, orderbyList);
+            return allData;
+        }
+
+
 
 
         /// <summary>
@@ -206,12 +216,22 @@ namespace publicClassLibrary.Services
   
         */
 
-        public bool Delete<T>(T entity, Expression<Func<T, bool>> whereLambda) where T : class, new()
+        public bool Delete<T>(Expression<Func<T, bool>> whereLambda) where T : class, new()
         {
-            return _dbHelper.Delete<T>(entity, whereLambda);
+            return _dbHelper.Delete<T>(whereLambda);
         }
 
-       public bool Update<T>(T entity, Expression<Func<T, object>> updateColumnsExpression) where T : class, new()
+        public bool Delete<T>(int id) where T : class, new()
+        {
+            return _dbHelper.Delete<T>( id);
+        }
+
+        public  bool Delete<T>(List<int> ids) where T : class, new()
+        {
+            return _dbHelper.Delete<T>( ids);
+        }
+
+        public bool Update<T>(T entity, Expression<Func<T, object>> updateColumnsExpression) where T : class, new()
         {
             return _dbHelper.Update<T>(entity, updateColumnsExpression);
         }

@@ -7,7 +7,7 @@ namespace shopadminService.Interfaces
 {
     public interface IProductService
     {
-        List<Products> getProductsPageList(int pageIndex, int pageSize, int appType, out int totalCount);
+        List<Products> getProductsPageList(int pageIndex, int pageSize, int appType, int? productStatus, out int totalCount);
 
         ResultObject updateProducts(Products pV0);
 

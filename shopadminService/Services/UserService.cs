@@ -18,7 +18,7 @@ namespace shopadminService.Services
 
         public Adminaccounts? postLogin(string userName, string password, int appType)
         {
-            var result = GetList<Adminaccounts>(it => it.AppType == appType && it.Username == userName && it.Password == password);
+            var result = GetList<Adminaccounts>(it => it.AppType == appType && it.UserName == userName && it.Password == password);
             if (result.Count > 0)
                 return result[0];
             else
@@ -35,7 +35,7 @@ namespace shopadminService.Services
         public bool changeUserPassword(string userName, string oldPassword, string newPassword ,int appType)
         {
             //修改用户密码
-            var result = GetList<Adminaccounts>(it => it.AppType == appType && it.Username == userName && it.Password == oldPassword);
+            var result = GetList<Adminaccounts>(it => it.AppType == appType && it.UserName == userName && it.Password == oldPassword);
             if (result.Count > 0)
             {
                 Adminaccounts entity = result[0];

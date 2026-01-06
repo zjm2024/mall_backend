@@ -26,9 +26,30 @@ namespace publicClassLibrary.Interfaces
         /// 根据条件查询实体列表+排序
         /// </summary>
         /// <param name="whereLambda">查询条件表达式</param>
-        /// <param name="orderExpression">排序表达式</param>
+        /// <param name="orderbyList">排序表达式</param>
         /// <returns>符合条件的实体列表</returns>
         List<T> GetList<T>(Expression<Func<T, bool>> whereLambda, List<OrderByModel> orderbyList = null) where T : class, new();
+
+
+        /// <summary>
+        /// 条件查询+排序
+        /// </summary>
+        /// <param name="condModels">查询条件表达式</param>
+        /// <param name="orderbyList">排序表达式</param>
+        /// <returns>符合条件的实体列表</returns>
+        List<T> GetList<T>(List<IConditionalModel> condModels, List<OrderByModel> orderbyList = null) where T : class, new();
+
+
+
+
+        /// <summary>
+        /// 匿名类条件查询+排序
+        /// </summary>
+        List<TResult> GetList<T, TResult>(Expression<Func<T, bool>> whereLambda, Expression<Func<T, TResult>> selectExpression, List<OrderByModel> orderbyList = null) where T : class, new() where TResult : class, new();
+
+
+
+
 
 
         /// <summary>
@@ -37,11 +58,6 @@ namespace publicClassLibrary.Interfaces
         List<T> GetPageList<T>(int pageIndex, int pageSize, out int totalCount, Expression<Func<T, bool>> whereLambda, List<OrderByModel> orderbyList = null) where T : class, new();
 
 
-
-        /// <summary>
-        /// 匿名类条件查询+排序
-        /// </summary>
-        List<TResult> GetList<T, TResult>(Expression<Func<T, bool>> whereLambda, Expression<Func<T, TResult>> selectExpression, List<OrderByModel> orderbyList = null) where T : class, new() where TResult : class, new();
 
 
         /// <summary>
@@ -85,7 +101,13 @@ namespace publicClassLibrary.Interfaces
 
 
 
-        bool Delete<T>(T entity, Expression<Func<T, bool>> whereLambda) where T : class, new();
+        bool Delete<T>(Expression<Func<T, bool>> whereLambda) where T : class, new();
+
+        bool Delete<T>(int id) where T : class, new();
+
+        bool Delete<T>(List<int> ids) where T : class, new();
+
+
         bool Update<T>(T entity, Expression<Func<T, object>> updateColumnsExpression) where T : class, new();
 
 

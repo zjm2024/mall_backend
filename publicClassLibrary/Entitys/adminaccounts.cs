@@ -14,8 +14,15 @@ namespace publicClassLibrary.Entitys
         [SugarColumn(ColumnName = "BusinessId", ColumnDescription = "商家ID")]
         public int BusinessId { get; set; }
 
-        [SugarColumn(ColumnName = "Username", ColumnDescription = "用户名", Length = 50)]
-        public string Username { get; set; }
+
+        [SugarColumn(ColumnName = "UserNo", ColumnDescription = "用户编号", Length = 50)]
+        public string UserNo { get; set; }
+
+
+        [SugarColumn(ColumnName = "UserName", ColumnDescription = "用户名", Length = 50)]
+        public string UserName { get; set; }
+
+
 
         [SugarColumn(ColumnName = "Password", ColumnDescription = "密码(加密)", Length = 255)]
         public string Password { get; set; }
