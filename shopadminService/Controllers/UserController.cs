@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.SqlServer.Server;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using publicClassLibrary.Entitys;
 using publicClassLibrary.Helpers;
 using publicClassLibrary.Models;
 using publicClassLibrary.TokenMange;
@@ -55,7 +57,7 @@ namespace shopadminService.Controllers
                 result.LoginCount = result.LoginCount + 1;
                 result.UpdateTime = DateTime.Now;
                 _userservice.updateLoginInfo(result);
-                return new ResultObject() { Flag = 1, Message = "验证成功!", Result = result };
+                return new ResultObject() { Flag = 1, Message = "验证成功!", Result = new { userNo=result.UserNo, userName =result.UserName,realName=result.RealName , isSuperAdmin=result.IsSuperAdmin} };
 
             }
             else
@@ -82,10 +84,12 @@ namespace shopadminService.Controllers
             int pageIndex = Convert.ToInt32(jsonElement.GetProperty("pageIndex").ToString());
             int pageSize = Convert.ToInt32(jsonElement.GetProperty("pageSize").ToString());
             int appType = Convert.ToInt32(jsonElement.GetProperty("appType").ToString());
-
+            JsonElement outjValue;
+            int? status = ((!jsonElement.TryGetProperty("status", out outjValue)) ? null : outjValue.GetInt32());
+            string? searchKey = ((!jsonElement.TryGetProperty("searchKey", out outjValue)) ? null : outjValue.GetString());
 
             int totalCount = 0;
-            var outobj = _userservice.getAdminaccountsPageList(pageIndex, pageSize, appType, out totalCount);
+            var outobj = _userservice.getAdminaccountsPageList(pageIndex, pageSize, appType, searchKey, status, out totalCount);
             return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj, Count = totalCount, Subsidiary = 1 };
         }
 
@@ -117,6 +121,50 @@ namespace shopadminService.Controllers
             else
                 return new ResultObject() { Flag = 0, Message = "密码错误，请重新输入!", Result = null };
         }
-       
+
+
+
+
+        /// <summary>
+        /// 更新或插入用户
+        /// </summary>
+        [HttpPost]
+        public ResultObject updateUsers([FromBody] JsonElement formData)
+        {
+            JsonElement jValue;
+            string json = ((!formData.TryGetProperty("data", out jValue)) ? "" : jValue.GetRawText());
+            var entity = JsonConvert.DeserializeObject(json, typeof(Adminaccounts));
+            if (entity == null)
+            {
+                return new ResultObject() { Flag = 0, Message = "参数为空!", Result = null };
+            }
+
+            //获取json中的修改字段
+            List<string> listColums = new List<string>();
+
+            JObject jsonobj = JObject.Parse(json);
+            foreach (JProperty prop in jsonobj.Properties())
+            {
+                listColums.Add(prop.Name);
+
+            }
+            string[] updateColums = listColums.ToArray();
+
+
+
+            return _userservice.updateUsers((Adminaccounts)entity, updateColums);
+        }
+
+        /// <summary>
+        /// 删除用户
+        /// </summary>
+        [HttpGet]
+        public ResultObject deleteUsers(int id)
+        {
+            return _userservice.deleteUsers(id);
+        }
+
+
+
     }
 }

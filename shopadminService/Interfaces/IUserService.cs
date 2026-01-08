@@ -14,7 +14,12 @@ namespace shopadminService.Interfaces
         bool changeUserPassword(string userName,string oldPassword, string newPassword, int appType);
 
 
-        List<Adminaccounts> getAdminaccountsPageList(int pageIndex, int pageSize, int appType, out int totalCount);
- 
+        List<dynamic> getAdminaccountsPageList(int pageIndex, int pageSize, int appType, string? searchKey, int? status, out int totalCount);
+
+        
+
+        ResultObject updateUsers(Adminaccounts cV0, string[] updateColums = null);
+
+        ResultObject deleteUsers(int id);
     }
 }

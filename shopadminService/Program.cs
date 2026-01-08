@@ -1,6 +1,10 @@
+using Newtonsoft.Json.Serialization;
 using publicClassLibrary.Configs;
+using publicClassLibrary.Helpers;
 using shopadminService.Interfaces;
 using shopadminService.Services;
+using System.ComponentModel;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,10 +20,20 @@ builder.Services.AddSharedCors(); //3.配置跨域请求
 builder.Services.AddScoped<IUserService, UserService>(); //用户服务
 builder.Services.AddScoped<ICategoryService, CategoryService>(); //类型服务
 builder.Services.AddScoped<IProductService, ProductService>(); //商品服务
+builder.Services.AddScoped<IOrderService, OrderService>(); //订单服务
 
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddControllers();
+// 注册自定义转换器
+builder.Services.AddControllers()
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.Converters.Add(
+                new System.Text.Json.Serialization.JsonStringEnumConverter()); // 如需要
+            options.JsonSerializerOptions.Converters.Add(
+                new publicClassLibrary.Helpers.DateTimeConverter("yyyy-MM-dd HH:mm:ss"));          // 关键
+        });
+
 
 var app = builder.Build();
 

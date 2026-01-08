@@ -67,12 +67,12 @@ namespace publicClassLibrary.Helpers
         /// <summary>
         /// 条件查询+排序
         /// </summary>
-        public List<T> GetList<T>(List<IConditionalModel> condModels, List<OrderByModel> orderbyList = null) where T : class, new()
+        public List<T> GetList<T>(List<IConditionalModel> conModels, List<OrderByModel> orderbyList = null) where T : class, new()
         {
             if (orderbyList == null)
-                return _db.Queryable<T>().Where(condModels).ToList();
+                return _db.Queryable<T>().Where(conModels).ToList();
             else
-                return _db.Queryable<T>().Where(condModels).OrderBy(orderbyList).ToList();
+                return _db.Queryable<T>().Where(conModels).OrderBy(orderbyList).ToList();
         }
 
         /// <summary>
@@ -85,6 +85,16 @@ namespace publicClassLibrary.Helpers
             else
                 return _db.Queryable<T>().Where(whereLambda).OrderBy(orderbyList).Select(selectExpression).ToList();
         }
+
+
+        public List<TResult> GetList<T, TResult>(List<IConditionalModel> conModels, Expression<Func<T, TResult>> selectExpression, List<OrderByModel> orderbyList = null) where T : class, new() where TResult : class, new()
+        {
+            if (orderbyList == null)
+                return _db.Queryable<T>().Where(conModels).Select(selectExpression).ToList();
+            else
+                return _db.Queryable<T>().Where(conModels).OrderBy(orderbyList).Select(selectExpression).ToList();
+        }
+
 
 
         /// <summary>
@@ -104,6 +114,21 @@ namespace publicClassLibrary.Helpers
         }
 
 
+        public List<T> GetPageList<T>(int pageIndex, int pageSize, out int totalCount, List<IConditionalModel> conModels, List<OrderByModel> orderbyList = null) where T : class, new()
+        {
+            PageModel pageModel = new();
+            pageModel.PageSize = pageSize;
+            pageModel.PageIndex = pageIndex;
+            totalCount = pageModel.TotalCount;
+
+
+
+            if (orderbyList == null)
+                return _db.Queryable<T>().Where(conModels).ToPageList(pageModel.PageIndex, pageModel.PageSize, ref totalCount);
+            else
+                return _db.Queryable<T>().Where(conModels).OrderBy(orderbyList).ToPageList(pageModel.PageIndex, pageModel.PageSize, ref totalCount);
+
+        }
 
         /// <summary>
         /// 匿名类分页查询+排序
@@ -120,6 +145,33 @@ namespace publicClassLibrary.Helpers
                 return _db.Queryable<T>().Where(whereLambda).Select(selectExpression).OrderBy(orderbyList).ToPageList(pageModel.PageIndex, pageModel.PageSize, ref totalCount);
 
         }
+
+        public List<TResult> GetPageList<T, TResult>(int pageIndex, int pageSize, out int totalCount, List<IConditionalModel> conModels, Expression<Func<T, TResult>> selectExpression, List<OrderByModel> orderbyList = null) where T : class, new() where TResult : class, new()
+        {
+            PageModel pageModel = new();
+            pageModel.PageSize = pageSize;
+            pageModel.PageIndex = pageIndex;
+            totalCount = pageModel.TotalCount;
+            if (orderbyList == null)
+                return _db.Queryable<T>().Where(conModels).Select(selectExpression).ToPageList(pageModel.PageIndex, pageModel.PageSize, ref totalCount);
+            else
+                return _db.Queryable<T>().Where(conModels).Select(selectExpression).OrderBy(orderbyList).ToPageList(pageModel.PageIndex, pageModel.PageSize, ref totalCount);
+
+        }
+
+
+        /// <summary>
+        /// 树状查询
+        /// </summary>
+        public List<T> GetTreeList<T>(Expression<Func<T, IEnumerable<object>>> childListExpression, Expression<Func<T, object>> parentIdExpression, object rootValue, Expression<Func<T, object>> primaryKeyExpression) where T : class, new()
+        {
+             return _db.Queryable<T>().ToTree(childListExpression, parentIdExpression, rootValue, primaryKeyExpression);
+        }
+
+
+
+
+
 
         /// <summary>
         /// 匿名类输入sql语句查询返回一个数据表
@@ -183,20 +235,7 @@ namespace publicClassLibrary.Helpers
         }
 
 
-        // 更新实体
-        public bool Update<T>(T entity) where T : class, new()
-        {
-            try
-            {
-                _db.Updateable(entity).ExecuteCommand();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                // 记录日志或提示用户
-                return false;
-            }
-        }
+
 
 
 
@@ -251,7 +290,7 @@ namespace publicClassLibrary.Helpers
         }
 
 
-        // 通用的修改方法 实体类 传递字段
+        // 通用的修改方法 实体类 传递字段表达式
         public bool Update<T>(T entity, Expression<Func<T, object>> updateColumnsExpression) where T : class, new()
         {
             try
@@ -266,6 +305,31 @@ namespace publicClassLibrary.Helpers
                 return false;
             }
         }
+
+        // 通用的修改方法 实体类 传递字段数组
+        public bool Update<T>(T entity, string[] updateColumns = null) where T : class, new()
+        {
+            try
+            {
+                if (updateColumns == null)
+                    _db.Updateable(entity).ExecuteCommand();
+                else
+                    _db.Updateable(entity).UpdateColumns(updateColumns).ExecuteCommand();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // 记录日志或提示用户
+                return false;
+            }
+        }
+
+
+
+
+  
+
 
 
 

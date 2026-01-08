@@ -54,9 +54,9 @@ namespace publicClassLibrary.Services
         /// <summary>
         /// 条件查询+排序
         /// </summary>
-        public List<T> GetList<T>(List<IConditionalModel> condModels, List<OrderByModel> orderbyList = null) where T : class, new()
+        public List<T> GetList<T>(List<IConditionalModel> conModels, List<OrderByModel> orderbyList = null) where T : class, new()
         {
-            var allData = _dbHelper.GetList<T>(condModels, orderbyList);
+            var allData = _dbHelper.GetList<T>(conModels, orderbyList);
             return allData;
         }
 
@@ -70,6 +70,13 @@ namespace publicClassLibrary.Services
             return allData;
         }
 
+        public List<TResult> GetList<T, TResult>(List<IConditionalModel> conModels, Expression<Func<T, TResult>> selectExpression, List<OrderByModel> orderbyList = null) where T : class, new() where TResult : class, new()
+        {
+            var allData = _dbHelper.GetList<T, TResult>(conModels, selectExpression, orderbyList);
+            return allData;
+        }
+
+
 
         /// <summary>
         /// 分页查询+排序
@@ -81,6 +88,12 @@ namespace publicClassLibrary.Services
             return allData;
         }
 
+        public List<T> GetPageList<T>(int pageIndex, int pageSize, out int totalCount, List<IConditionalModel> conModels, List<OrderByModel> orderbyList = null) where T : class, new()
+        {
+
+            var allData = _dbHelper.GetPageList<T>(pageIndex, pageSize, out totalCount, conModels, orderbyList);
+            return allData;
+        }
 
 
 
@@ -92,6 +105,32 @@ namespace publicClassLibrary.Services
             var allData = _dbHelper.GetPageList<T, TResult>(pageIndex, pageSize, out totalCount, whereLambda, selectExpression, orderbyList);
             return allData;
         }
+
+        public List<TResult> GetPageList<T, TResult>(int pageIndex, int pageSize, out int totalCount, List<IConditionalModel> conModels, Expression<Func<T, TResult>> selectExpression, List<OrderByModel> orderbyList = null) where T : class, new() where TResult : class, new()
+        {
+            var allData = _dbHelper.GetPageList<T, TResult>(pageIndex, pageSize, out totalCount, conModels, selectExpression, orderbyList);
+            return allData;
+        }
+
+
+
+        /// <summary>
+        /// 树状查询
+        /// </summary>
+        public List<T> GetTreeList<T>(Expression<Func<T, IEnumerable<object>>> childListExpression, Expression<Func<T, object>> parentIdExpression, object rootValue, Expression<Func<T, object>> primaryKeyExpression) where T : class, new()
+        {
+            return _dbHelper.GetTreeList<T>(childListExpression, parentIdExpression, rootValue, primaryKeyExpression);
+        }
+
+
+
+
+
+
+
+
+
+
 
         /// <summary>
         /// 匿名类输入sql语句查询返回一个数据表
@@ -234,6 +273,11 @@ namespace publicClassLibrary.Services
         public bool Update<T>(T entity, Expression<Func<T, object>> updateColumnsExpression) where T : class, new()
         {
             return _dbHelper.Update<T>(entity, updateColumnsExpression);
+        }
+
+        public bool Update<T>(T entity, string[] updateColumns = null) where T : class, new()
+        {
+            return _dbHelper.Update<T>(entity, updateColumns);
         }
 
 

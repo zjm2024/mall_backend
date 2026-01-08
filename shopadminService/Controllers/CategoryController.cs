@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using publicClassLibrary.Entitys;
 using publicClassLibrary.Models;
 using publicClassLibrary.TokenMange;
@@ -27,9 +28,10 @@ namespace shopadminService.Controllers
         /// 根据条件获取实体
         /// </summary>
         [HttpGet]
-        public ResultObject getCategoriesList(int appType, string? categoryName, int? status)
+        public  ResultObject getCategoriesList(int appType, string? categoryName, int? status)
         {
-            var list = _categoryservice.getCategoriesList(appType, categoryName, status);
+            var list =  _categoryservice.getCategoriesList(appType, categoryName, status);
+            
             return new ResultObject() { Flag = 1, Message = "获取成功!", Result = list, Count = list.Count, Subsidiary = 1 };
         }
 
@@ -46,7 +48,21 @@ namespace shopadminService.Controllers
             {
                 return new ResultObject() { Flag = 0, Message = "参数为空!", Result = null };
             }
-            return _categoryservice.updateCategories((Categories)entity);
+
+            //获取json中的修改字段
+            List<string> listColums = new List<string>();
+
+            JObject jsonobj = JObject.Parse(json);
+            foreach (JProperty prop in jsonobj.Properties())
+            {
+                listColums.Add(prop.Name);
+
+            }
+            string[] updateColums = listColums.ToArray();
+
+
+
+            return _categoryservice.updateCategories((Categories)entity, updateColums);
         }
 
         /// <summary>

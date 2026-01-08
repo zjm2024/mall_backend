@@ -34,10 +34,10 @@ namespace publicClassLibrary.Interfaces
         /// <summary>
         /// 条件查询+排序
         /// </summary>
-        /// <param name="condModels">查询条件表达式</param>
+        /// <param name="conModels">查询条件表达式</param>
         /// <param name="orderbyList">排序表达式</param>
         /// <returns>符合条件的实体列表</returns>
-        List<T> GetList<T>(List<IConditionalModel> condModels, List<OrderByModel> orderbyList = null) where T : class, new();
+        List<T> GetList<T>(List<IConditionalModel> conModels, List<OrderByModel> orderbyList = null) where T : class, new();
 
 
 
@@ -48,6 +48,7 @@ namespace publicClassLibrary.Interfaces
         List<TResult> GetList<T, TResult>(Expression<Func<T, bool>> whereLambda, Expression<Func<T, TResult>> selectExpression, List<OrderByModel> orderbyList = null) where T : class, new() where TResult : class, new();
 
 
+        List<TResult> GetList<T, TResult>(List<IConditionalModel> conModels, Expression<Func<T, TResult>> selectExpression, List<OrderByModel> orderbyList = null) where T : class, new() where TResult : class, new();
 
 
 
@@ -58,12 +59,30 @@ namespace publicClassLibrary.Interfaces
         List<T> GetPageList<T>(int pageIndex, int pageSize, out int totalCount, Expression<Func<T, bool>> whereLambda, List<OrderByModel> orderbyList = null) where T : class, new();
 
 
-
+        List<T> GetPageList<T>(int pageIndex, int pageSize, out int totalCount, List<IConditionalModel> conModels, List<OrderByModel> orderbyList = null) where T : class, new();
 
         /// <summary>
         /// 匿名类分页查询+排序
         /// </summary>
         List<TResult> GetPageList<T, TResult>(int pageIndex, int pageSize, out int totalCount, Expression<Func<T, bool>> whereLambda, Expression<Func<T, TResult>> selectExpression, List<OrderByModel> orderbyList = null) where T : class, new() where TResult : class, new();
+
+
+        List<TResult> GetPageList<T, TResult>(int pageIndex, int pageSize, out int totalCount, List<IConditionalModel> conModels, Expression<Func<T, TResult>> selectExpression, List<OrderByModel> orderbyList = null) where T : class, new() where TResult : class, new();
+
+
+
+        /// <summary>
+        /// 树状查询
+        /// </summary>
+        List<T> GetTreeList<T>(Expression<Func<T, IEnumerable<object>>> childListExpression, Expression<Func<T, object>> parentIdExpression, object rootValue, Expression<Func<T, object>> primaryKeyExpression) where T : class, new();
+ 
+
+
+
+
+
+
+
 
         /// <summary>
         /// 匿名类输入sql语句查询返回一个数据表
@@ -110,16 +129,18 @@ namespace publicClassLibrary.Interfaces
 
         bool Update<T>(T entity, Expression<Func<T, object>> updateColumnsExpression) where T : class, new();
 
+        bool Update<T>(T entity, string[] updateColumns = null) where T : class, new();
+
 
         #region  异步  Method
 
 
-        /// <summary>
-        /// 根据ID获取实体
-        /// </summary>
-        /// <param name="id">主键ID</param>
-        /// <returns>实体对象</returns>
-        Task<T> GetByIdAsync<T>(int id) where T : class, new();
+/// <summary>
+/// 根据ID获取实体
+/// </summary>
+/// <param name="id">主键ID</param>
+/// <returns>实体对象</returns>
+Task<T> GetByIdAsync<T>(int id) where T : class, new();
 
         /// <summary>
         /// 获取所有实体列表

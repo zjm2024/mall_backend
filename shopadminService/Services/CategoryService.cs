@@ -13,53 +13,49 @@ using static Dm.parser.SQLProcessor;
 
 namespace shopadminService.Services
 {
+   
     public class CategoryService : BaseService, ICategoryService
     {
+
         private readonly SqlSugarHelper _dbHelper;
-        public CategoryService(SqlSugarHelper dbHelper) : base(dbHelper)
+        private readonly ISqlSugarClient _db;
+        public CategoryService(SqlSugarHelper dbHelper, ISqlSugarClient db) : base(dbHelper)
         {
             _dbHelper = dbHelper;
+            _db = db;
         }
 
-        public List<Categories> getCategoriesList(int appType, string? categoryName,int? status)
+        public List<Categories> getCategoriesList(int appType, string? categoryName, int? status)
         {
             //加排序
             List<OrderByModel> orderbyList = OrderByModel.Create(
               new OrderByModel() { FieldName = "SortOrder", OrderByType = OrderByType.Asc });
 
             //加查询条件
-           var conditions = new List<IConditionalModel>();
-         
-            conditions.add(new ConditionalModel
-            {
-                FieldName = "AppType",
-                FieldValue = appType.toString(),
-                ConditionalType = ConditionalType.Equal
-            }); 
+            var conModels = new List<IConditionalModel>();
+
+            conModels.add(new ConditionalModel { FieldName = "AppType", ConditionalType = ConditionalType.Equal, FieldValue = appType.toString() });
 
             if (categoryName != null)
             {
-                conditions.add(new ConditionalModel
-                {
-                    FieldName = "CategoryName",
-                    FieldValue = categoryName.toString(),
-                    ConditionalType = ConditionalType.Like
-                });
+                conModels.add(new ConditionalModel { FieldName = "CategoryName", ConditionalType = ConditionalType.Like, FieldValue = categoryName.toString() });
             }
 
             if (status != null)
             {
-                conditions.add(new ConditionalModel
-                {
-                    FieldName = "Status",
-                    FieldValue = status.toString(),
-                    ConditionalType = ConditionalType.Equal
-                });
+                conModels.add(new ConditionalModel { FieldName = "Status", ConditionalType = ConditionalType.Equal, FieldValue = status.toString() });
             }
 
+   
 
-            var list = GetList<Categories>(conditions, orderbyList);
+            //查询树状结构
+            var list =  _db.Queryable<Categories>().Where(conModels).OrderBy(orderbyList).ToTree(it => it.Children, it => it.ParentId, 0, it => it.CategoryId).ToList();
+
+
             return list;
+
+
+
         }
 
 
@@ -68,7 +64,7 @@ namespace shopadminService.Services
         /// </summary>
         /// <param name="Categories">分类cVO</param>
 
-        public ResultObject updateCategories(Categories cVO)
+        public ResultObject updateCategories(Categories cVO, string[] updateColums = null)
         {
             //判断分类名称是否重复
             string categoryName = cVO.CategoryName;
@@ -96,8 +92,8 @@ namespace shopadminService.Services
             }
             else
             {
-
-                bool isSuccess = Update<Categories>(cVO, it => new { it.CategoryName, it.Icon,it.SortOrder,it.Status });
+                //it => new { it.CategoryName, it.Icon,it.SortOrder,it.Status }
+                bool isSuccess = Update<Categories>(cVO, updateColums);
                 if (isSuccess)
                     return new ResultObject() { Flag = 1, Message = "更新成功!", Result = cVO };
                 else
@@ -122,15 +118,15 @@ namespace shopadminService.Services
                 }
                 else
                 {
-                    return new ResultObject() { Flag = 1, Message = "部分删除成功!", Result = null };
+                    return new ResultObject() { Flag = 0, Message = "删除失败!", Result = null };
                 }
 
 
 
             }
-            catch
+            catch(Exception ex)
             {
-                return new ResultObject() { Flag = 0, Message = "删除失败!", Result = null };
+                return new ResultObject() { Flag = 0, Message = "删除失败!"+ ex.toString(), Result = null };
             }
         }
     }

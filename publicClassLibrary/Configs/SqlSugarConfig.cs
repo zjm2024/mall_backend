@@ -20,15 +20,15 @@ namespace publicClassLibrary.Configs
 
 
             // 2.注册数据库上下文
-            services.AddSingleton<SqlSugarDbContext>();
-            services.AddSingleton<ISqlSugarClient>(provider =>
+            services.AddScoped<SqlSugarDbContext>();
+            services.AddScoped<ISqlSugarClient>(provider =>
             {
                 var context = provider.GetRequiredService<SqlSugarDbContext>();
                 return context.GetDbClient();
             });
 
             // 3.注册数据库基本操作
-            services.AddSingleton<SqlSugarHelper>();
+            services.AddScoped<SqlSugarHelper>();
 
 
         }

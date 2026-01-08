@@ -38,5 +38,12 @@ namespace publicClassLibrary.Entitys
         [SugarColumn(ColumnName = "CreateTime", ColumnDescription = "创建时间")]
         public DateTime CreateTime { get; set; } = DateTime.UtcNow;
 
+
+        /// <summary>
+        /// 分类子项
+        /// </summary>
+        [SugarColumn(IsIgnore = true)]
+        public List<Categories> Children { get; set; } = new List<Categories>();
+
     }
 }

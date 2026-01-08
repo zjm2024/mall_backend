@@ -1,4 +1,5 @@
-﻿using SqlSugar;
+﻿using publicClassLibrary.Helpers;
+using SqlSugar;
 
 namespace publicClassLibrary.Entitys
 {
@@ -25,7 +26,7 @@ namespace publicClassLibrary.Entitys
 
 
         [SugarColumn(ColumnName = "Password", ColumnDescription = "密码(加密)", Length = 255)]
-        public string Password { get; set; }
+        public string Password { get; set; } = MD5Helper.GetMD5("654321"); //初始密码为654321
 
         [SugarColumn(ColumnName = "RealName", ColumnDescription = "真实姓名", Length = 50)]
         public string RealName { get; set; }
@@ -58,7 +59,7 @@ namespace publicClassLibrary.Entitys
         public string Remark { get; set; }
 
         [SugarColumn(ColumnName = "CreateTime", ColumnDescription = "创建时间")]
-        public DateTime CreateTime { get; set; }
+        public DateTime CreateTime { get; set; } = DateTime.UtcNow;
 
         [SugarColumn(ColumnName = "UpdateTime", ColumnDescription = "更新时间")]
         public DateTime UpdateTime { get; set; }
