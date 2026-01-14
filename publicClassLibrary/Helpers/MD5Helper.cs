@@ -9,6 +9,7 @@ namespace publicClassLibrary.Helpers
 {
     public static class MD5Helper
     {
+        public static string IniPassword = "654321";  //初始密码为654321
         public static string GetMD5(string input)
         {
             byte[] result = Encoding.Default.GetBytes(input);

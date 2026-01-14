@@ -26,7 +26,7 @@ namespace publicClassLibrary.Entitys
 
 
         [SugarColumn(ColumnName = "Password", ColumnDescription = "密码(加密)", Length = 255)]
-        public string Password { get; set; } = MD5Helper.GetMD5("654321"); //初始密码为654321
+        public string Password { get; set; } = MD5Helper.GetMD5(MD5Helper.IniPassword); 
 
         [SugarColumn(ColumnName = "RealName", ColumnDescription = "真实姓名", Length = 50)]
         public string RealName { get; set; }

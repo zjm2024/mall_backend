@@ -19,6 +19,9 @@ namespace publicClassLibrary.Entitys
         [SugarColumn(ColumnName = "AppType", ColumnDescription = "应用类型")]
         public int AppType { get; set; }
 
+        [SugarColumn(ColumnName = "BusinessId", ColumnDescription = "商家ID")]
+        public int BusinessId { get; set; }
+
         [SugarColumn(ColumnName = "ProductId", ColumnDescription = "商品ID")]
         public int ProductId { get; set; }
 
@@ -47,7 +50,7 @@ namespace publicClassLibrary.Entitys
         public string Image { get; set; }
 
         [SugarColumn(ColumnName = "CreateTime", ColumnDescription = "创建时间")]
-        public DateTime CreateTime { get; set; }
+        public DateTime CreateTime { get; set; } = DateTime.UtcNow;
 
         [SugarColumn(ColumnName = "UpdateTime", ColumnDescription = "更新时间")]
         public DateTime UpdateTime { get; set; }

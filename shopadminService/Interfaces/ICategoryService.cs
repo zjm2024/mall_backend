@@ -7,7 +7,7 @@ namespace shopadminService.Interfaces
 {
     public interface ICategoryService 
     {
-       List<Categories> getCategoriesList(int appType, string? categoryName,int? status);
+       List<Categories> getCategoriesList(int appType, int businessId, string? categoryName,int? status);
 
         ResultObject updateCategories(Categories cV0,string[] updateColums=null);
 

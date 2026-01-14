@@ -18,9 +18,9 @@ namespace shopadminService.Services
             _dbHelper = dbHelper;
         }
 
-        public Adminaccounts? postLogin(string userName, string password, int appType)
+        public Adminaccounts? postLogin(string userNo, string password, int appType)
         {
-            var result = GetList<Adminaccounts>(it => it.AppType == appType && it.UserName == userName && it.Password == password);
+            var result = GetList<Adminaccounts>(it => it.AppType == appType && it.UserNo == userNo && it.Password == password);
             if (result.Count > 0)
                 return result[0];
             else
@@ -34,10 +34,10 @@ namespace shopadminService.Services
 
         }
 
-        public bool changeUserPassword(string userName, string oldPassword, string newPassword ,int appType)
+        public bool changeUserPassword(string userNo, string oldPassword, string newPassword ,int appType)
         {
             //修改用户密码
-            var result = GetList<Adminaccounts>(it => it.AppType == appType && it.UserName == userName && it.Password == oldPassword);
+            var result = GetList<Adminaccounts>(it => it.AppType == appType && it.UserNo == userNo && it.Password == oldPassword);
             if (result.Count > 0)
             {
                 Adminaccounts entity = result[0];
@@ -49,6 +49,22 @@ namespace shopadminService.Services
 
 
         }
+
+
+        public bool resetUserPassword(string userNo, string iniPassword, int appType)
+        {
+            //重置用户密码
+            var result = GetList<Adminaccounts>(it => it.AppType == appType && it.UserNo == userNo);
+            if (result.Count > 0)
+            {
+                Adminaccounts entity = result[0];
+                entity.Password = iniPassword;
+                return Update<Adminaccounts>(entity, it => new { it.Password });
+            }
+            else
+                return false;
+        }
+
 
         public List<dynamic> getAdminaccountsPageList(int pageIndex, int pageSize, int appType, string? searchKey, int? status, out int totalCount)
         {
@@ -98,7 +114,8 @@ namespace shopadminService.Services
             var list = GetPageList<Adminaccounts, dynamic>(pageIndex, pageSize, out totalCount, conModels, it => new {
                 adminId =it.AdminId,
                 isSuperAdmin =it.IsSuperAdmin,
-                userNo= it.UserNo,
+                businessId = it.BusinessId,
+                userNo = it.UserNo,
                 userName =it.UserName,
                 realName =it.RealName,
                 avatar =it.Avatar,

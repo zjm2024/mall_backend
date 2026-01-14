@@ -7,12 +7,13 @@ namespace shopadminService.Interfaces
 {
     public interface IUserService
     {
-        Adminaccounts? postLogin(string userName,string password, int appType);
+        Adminaccounts? postLogin(string userNo,string password, int appType);
 
         void updateLoginInfo(Adminaccounts entity);
 
-        bool changeUserPassword(string userName,string oldPassword, string newPassword, int appType);
+        bool changeUserPassword(string userNo,string oldPassword, string newPassword, int appType);
 
+        bool resetUserPassword(string userNo,string iniPassword,int appType);
 
         List<dynamic> getAdminaccountsPageList(int pageIndex, int pageSize, int appType, string? searchKey, int? status, out int totalCount);
 

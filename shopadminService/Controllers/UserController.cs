@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.SqlServer.Server;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using publicClassLibrary.Entitys;
@@ -57,7 +56,9 @@ namespace shopadminService.Controllers
                 result.LoginCount = result.LoginCount + 1;
                 result.UpdateTime = DateTime.Now;
                 _userservice.updateLoginInfo(result);
-                return new ResultObject() { Flag = 1, Message = "验证成功!", Result = new { userNo=result.UserNo, userName =result.UserName,realName=result.RealName , isSuperAdmin=result.IsSuperAdmin} };
+                return new ResultObject() { Flag = 1, Message = "验证成功!", Result = new
+                { appType=result.AppType, businessId=result.BusinessId, avatar=result.Avatar ,phone=result.Phone,email=result.Email,
+                    userNo =result.UserNo, userName =result.UserName,realName=result.RealName , isSuperAdmin=result.IsSuperAdmin} };
 
             }
             else
@@ -96,26 +97,26 @@ namespace shopadminService.Controllers
         /// <summary>
         /// 改用户密码
         /// </summary>
-        /// <param name="userName">用户ID</param>
+        /// <param name="userNo">用户账号</param>
         /// <param name="newPassword">新密码</param>
         /// <returns></returns>
         [HttpPost]
-        public ResultObject ChangeUserPassword([FromBody] JsonElement formData)
+        public ResultObject changeUserPassword([FromBody] JsonElement formData)
         {
             JsonElement jValue;
             string json = ((!formData.TryGetProperty("data", out jValue)) ? "" : jValue.GetRawText());
             JsonElement jsonElement = System.Text.Json.JsonSerializer.Deserialize<JsonElement>(json);
 
-            string userName = jsonElement.GetProperty("UserName").ToString();
-            string oldPassword = jsonElement.GetProperty("Password").ToString();
+            string userNo = jsonElement.GetProperty("userNo").ToString();
+            string oldPassword = jsonElement.GetProperty("oldPassword").ToString();
             string newPassword = jsonElement.GetProperty("newPassword").ToString();
-            int appType = Convert.ToInt32(jsonElement.GetProperty("AppType").ToString());
+            int appType = Convert.ToInt32(jsonElement.GetProperty("appType").ToString());
 
             oldPassword = MD5Helper.GetMD5(oldPassword);
             newPassword = MD5Helper.GetMD5(newPassword);
 
   
-            bool result = _userservice.changeUserPassword(userName, oldPassword, newPassword, appType);
+            bool result = _userservice.changeUserPassword(userNo, oldPassword, newPassword, appType);
             if (result)
                 return new ResultObject() { Flag = 1, Message = "修改成功!", Result = null };
             else
@@ -123,6 +124,31 @@ namespace shopadminService.Controllers
         }
 
 
+        /// <summary>
+        /// 重置用户密码
+        /// </summary>
+        /// <param name="userNo">用户账号</param>
+        /// <returns></returns>
+        [HttpPost]
+        public ResultObject resetUserPassword([FromBody] JsonElement formData)
+        {
+            JsonElement jValue;
+            string json = ((!formData.TryGetProperty("data", out jValue)) ? "" : jValue.GetRawText());
+            JsonElement jsonElement = System.Text.Json.JsonSerializer.Deserialize<JsonElement>(json);
+
+            string userNo = jsonElement.GetProperty("userNo").ToString();
+          
+            int appType = Convert.ToInt32(jsonElement.GetProperty("appType").ToString());
+
+
+            var iniPassword = MD5Helper.GetMD5(MD5Helper.IniPassword);
+
+            bool result = _userservice.resetUserPassword(userNo, iniPassword, appType);
+            if (result)
+                return new ResultObject() { Flag = 1, Message = "重置成功!", Result = null };
+            else
+                return new ResultObject() { Flag = 0, Message = "重置失败!", Result = null };
+        }
 
 
         /// <summary>

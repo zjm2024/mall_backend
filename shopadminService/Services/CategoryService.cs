@@ -25,7 +25,7 @@ namespace shopadminService.Services
             _db = db;
         }
 
-        public List<Categories> getCategoriesList(int appType, string? categoryName, int? status)
+        public List<Categories> getCategoriesList(int appType, int businessId, string? categoryName, int? status)
         {
             //加排序
             List<OrderByModel> orderbyList = OrderByModel.Create(
@@ -33,8 +33,8 @@ namespace shopadminService.Services
 
             //加查询条件
             var conModels = new List<IConditionalModel>();
-
             conModels.add(new ConditionalModel { FieldName = "AppType", ConditionalType = ConditionalType.Equal, FieldValue = appType.toString() });
+            conModels.add(new ConditionalModel { FieldName = "BusinessId", ConditionalType = ConditionalType.Equal, FieldValue = businessId.toString() });
 
             if (categoryName != null)
             {
@@ -79,25 +79,54 @@ namespace shopadminService.Services
                 }
             }
 
-            if (categoryId == 0)
+            _db.Ado.BeginTran();
+            try
             {
+                dynamic resultobj;
+                if (categoryId == 0)
+                {
+                    int id = Add<Categories>(cVO);
+                    //新增保存时选取父节点
+                    var treepath = id.toString();
+                    int parentid = cVO.ParentId;
+                    var parent = GetById<Categories>(parentid);
 
-                int id = Add<Categories>(cVO);
-                cVO.CategoryId = id;
-                if (id > 0)
-                    return new ResultObject() { Flag = 1, Message = "添加成功!", Result = cVO };
+                    if (parent != null)
+                    {
+                        treepath = parent.TreePath;
+                        treepath = treepath + "." + id.toString();
+                    }
+                    //保存treepath 
+                    cVO.TreePath = treepath;
+                    cVO.CategoryId = id;
+                    Update<Categories>(cVO, new string[] { "TreePath" });
+
+
+                    if (id > 0)
+                        resultobj= new ResultObject() { Flag = 1, Message = "添加成功!", Result = cVO };
+                    else
+                        resultobj= new ResultObject() { Flag = 0, Message = "添加失败!", Result = null };
+
+                }
                 else
-                    return new ResultObject() { Flag = 0, Message = "添加失败!", Result = null };
+                {
+                    //it => new { it.CategoryName, it.Icon,it.SortOrder,it.Status }
+                    bool isSuccess = Update<Categories>(cVO, updateColums);
+                    if (isSuccess)
+                        resultobj= new ResultObject() { Flag = 1, Message = "更新成功!", Result = cVO };
+                    else
+                        resultobj= new ResultObject() { Flag = 0, Message = "更新失败!", Result = null };
+                }
+                
+                _db.Ado.CommitTran();
 
+                return resultobj;
             }
-            else
+            catch (Exception ex)
             {
-                //it => new { it.CategoryName, it.Icon,it.SortOrder,it.Status }
-                bool isSuccess = Update<Categories>(cVO, updateColums);
-                if (isSuccess)
-                    return new ResultObject() { Flag = 1, Message = "更新成功!", Result = cVO };
-                else
-                    return new ResultObject() { Flag = 0, Message = "更新失败!", Result = null };
+                // 如果有任何异常，回滚事务
+                _db.Ado.RollbackTran();
+                return new ResultObject() { Flag = 0, Message = "操作失败!", Result = null };
             }
         }
 

@@ -28,9 +28,9 @@ namespace shopadminService.Controllers
         /// 根据条件获取实体
         /// </summary>
         [HttpGet]
-        public  ResultObject getCategoriesList(int appType, string? categoryName, int? status)
+        public  ResultObject getCategoriesList(int appType,int businessId, string? categoryName, int? status)
         {
-            var list =  _categoryservice.getCategoriesList(appType, categoryName, status);
+            var list =  _categoryservice.getCategoriesList(appType, businessId, categoryName, status);
             
             return new ResultObject() { Flag = 1, Message = "获取成功!", Result = list, Count = list.Count, Subsidiary = 1 };
         }
