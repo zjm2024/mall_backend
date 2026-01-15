@@ -11,7 +11,12 @@ namespace shopadminService.Interfaces
 
         ResultObject updateProducts(Products pV0, string[] updateColums = null);
 
+        ResultObject deleteProducts(int id);
+
+        ResultObject deleteBatchProducts(string ids);
+
         Products getProductsById(int id);
+
         List<Categories> getCategoriesOptions(int appType, int businessId);
 
     }

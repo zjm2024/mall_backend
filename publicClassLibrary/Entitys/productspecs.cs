@@ -25,11 +25,23 @@ namespace publicClassLibrary.Entitys
         [SugarColumn(ColumnName = "ProductId", ColumnDescription = "商品ID")]
         public int ProductId { get; set; }
 
-        [SugarColumn(ColumnName = "SpecName", ColumnDescription = "规格名称(如颜色、尺寸)", Length = 100)]
-        public string SpecName { get; set; }
+        [SugarColumn(ColumnName = "Spec1Name", ColumnDescription = "规格名称1", Length = 100)]
+        public string Spec1Name { get; set; } = string.Empty;
 
-        [SugarColumn(ColumnName = "SpecValue", ColumnDescription = "规格值(如红色、XL)", Length = 100)]
-        public string SpecValue { get; set; }
+        [SugarColumn(ColumnName = "Spec1Value", ColumnDescription = "规格值1", Length = 100)]
+        public string Spec1Value { get; set; } = string.Empty;
+
+        [SugarColumn(ColumnName = "Spec2Name", ColumnDescription = "规格名称2", Length = 100)]
+        public string Spec2Name { get; set; } = string.Empty;
+
+        [SugarColumn(ColumnName = "Spec2Value", ColumnDescription = "规格值2", Length = 100)]
+        public string Spec2Value { get; set; } = string.Empty;
+
+        [SugarColumn(ColumnName = "Spec3Name", ColumnDescription = "规格名称3", Length = 100)]
+        public string Spec3Name { get; set; }=string.Empty;
+
+        [SugarColumn(ColumnName = "Spec3Value", ColumnDescription = "规格值3", Length = 100)]
+        public string Spec3Value { get; set; } = string.Empty;
 
         [SugarColumn(ColumnName = "Price", ColumnDescription = "规格价格")]
         public decimal Price { get; set; }
@@ -50,7 +62,7 @@ namespace publicClassLibrary.Entitys
         public string Image { get; set; }
 
         [SugarColumn(ColumnName = "CreateTime", ColumnDescription = "创建时间")]
-        public DateTime CreateTime { get; set; } = DateTime.UtcNow;
+        public DateTime CreateTime { get; set; } = DateTime.Now;
 
         [SugarColumn(ColumnName = "UpdateTime", ColumnDescription = "更新时间")]
         public DateTime UpdateTime { get; set; }

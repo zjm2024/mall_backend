@@ -24,7 +24,11 @@ namespace publicClassLibrary.Entitys
 
         [SugarColumn(ColumnName = "CategoryId", ColumnDescription = "分类ID")]
         public int CategoryId { get; set; }
- 
+
+        
+        [SugarColumn(ColumnName = "TreePath", ColumnDescription = "分类树路径", Length = 255)]
+        public string TreePath { get; set; }
+
         [SugarColumn(ColumnName = "ProductName", ColumnDescription = "商品名称", Length = 255)]
         public string ProductName { get; set; }
 
@@ -37,7 +41,9 @@ namespace publicClassLibrary.Entitys
         [SugarColumn(ColumnName = "ProductContent", ColumnDescription = "商品详情(HTML)", Length = int.MaxValue)]
         public string ProductContent { get; set; }
 
-
+        [SugarColumn(ColumnName = "ProductSpec", ColumnDescription = "商品规格(JSON格式))", Length = int.MaxValue)]
+        public string ProductSpec { get; set; }
+        
         [SugarColumn(ColumnName = "OriginalPrice", ColumnDescription = "原价")]
         public decimal OriginalPrice { get; set; }
 
@@ -79,7 +85,7 @@ namespace publicClassLibrary.Entitys
         public int MaxDailyOrders { get; set; }
 
         [SugarColumn(ColumnName = "CreateTime", ColumnDescription = "创建时间")]
-        public DateTime CreateTime { get; set; } = DateTime.UtcNow;
+        public DateTime CreateTime { get; set; } = DateTime.Now;
 
         [SugarColumn(ColumnName = "UpdateTime", ColumnDescription = "更新时间")]
         public DateTime UpdateTime { get; set; }

@@ -88,6 +88,25 @@ namespace shopadminService.Controllers
 
 
         /// <summary>
+        /// 删除商品
+        /// </summary>
+        [HttpGet]
+        public ResultObject deleteProducts(int id)
+        {
+            return _productservice.deleteProducts(id);
+        }
+
+        /// <summary>
+        /// 批量删除商品
+        /// </summary>
+        [HttpGet]
+        public ResultObject deleteBatchProducts(string ids)
+        {
+            return _productservice.deleteBatchProducts(ids);
+        }
+
+
+        /// <summary>
         /// 根据ID获取实体
         /// </summary>
         [HttpGet]

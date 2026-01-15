@@ -44,7 +44,7 @@ namespace publicClassLibrary.Entitys
 
 
         [SugarColumn(ColumnName = "CreateTime", ColumnDescription = "创建时间")]
-        public DateTime CreateTime { get; set; } = DateTime.UtcNow;
+        public DateTime CreateTime { get; set; } = DateTime.Now;
 
 
         /// <summary>

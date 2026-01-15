@@ -84,7 +84,7 @@ namespace shopadminService.Services
                     {
                         var kk = new KeyValuePair<WhereType, ConditionalModel>(
                              WhereType.And,
-                             new ConditionalModel() { FieldName = "CategoryId", ConditionalType = ConditionalType.LikeLeft, FieldValue = categoryid.toString() });
+                             new ConditionalModel() { FieldName = "TreePath", ConditionalType = ConditionalType.LikeLeft, FieldValue = categoryid.toString() });
 
                         conditionalLists.Add(kk);
 
@@ -179,7 +179,11 @@ namespace shopadminService.Services
                 }
                 else
                 {
+                    pV0.UpdateTime = DateTime.Now;
 
+                    Array.Resize(ref updateColums, updateColums.Length + 1);
+                    updateColums[updateColums.Length - 1] = "updateTime";
+            
                     bool isSuccess = Update<Products>(pV0, updateColums);
                     if (isSuccess)
                     {
@@ -222,6 +226,65 @@ namespace shopadminService.Services
                 // 如果有任何异常，回滚事务
                 _db.Ado.RollbackTran();
                 return new ResultObject() { Flag = 0, Message = "操作失败!", Result = null };
+            }
+        }
+
+
+        /// <summary>
+        /// 删除商品
+        /// </summary>
+        /// <param name="id">商品id</param>
+        public ResultObject deleteProducts(int id)
+        {
+            try
+            {
+
+                bool isSuccess = Delete<Products>(id);
+                if (isSuccess)
+                {
+                    return new ResultObject() { Flag = 1, Message = "删除成功!", Result = id };
+                }
+                else
+                {
+                    return new ResultObject() { Flag = 0, Message = "删除失败!", Result = null };
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                return new ResultObject() { Flag = 0, Message = "删除失败!" + ex.toString(), Result = null };
+            }
+        }
+
+
+        /// <summary>
+        /// 批量删除商品
+        /// </summary>
+        /// <param name="ids">商品ids</param>
+        public ResultObject deleteBatchProducts(string ids)
+        {
+            try
+            {
+                List<int> listids = ids.Split(',').Select(int.Parse).ToList();
+              
+                bool isSuccess = Delete<Products>(listids);
+                if (isSuccess)
+                {
+                    return new ResultObject() { Flag = 1, Message = "删除成功!", Result = ids };
+                }
+                else
+                {
+                    return new ResultObject() { Flag = 0, Message = "删除失败!", Result = null };
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                return new ResultObject() { Flag = 0, Message = "删除失败!" + ex.toString(), Result = null };
             }
         }
 

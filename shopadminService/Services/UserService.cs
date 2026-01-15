@@ -189,7 +189,7 @@ namespace shopadminService.Services
                 }
                 else
                 {
-                    return new ResultObject() { Flag = 1, Message = "删除失败!", Result = null };
+                    return new ResultObject() { Flag = 0, Message = "删除失败!", Result = null };
                 }
 
 
