@@ -137,24 +137,31 @@ namespace shopadminService.Services
         /// <param name="id">分类id</param>
         public ResultObject deleteCategories(int id)
         {
+            _db.Ado.BeginTran();
             try
             {
+                dynamic resultobj;
 
                 bool isSuccess = Delete<Categories>(id);
                 if (isSuccess)
                 {
-                    return new ResultObject() { Flag = 1, Message = "删除成功!", Result = id };
+                    resultobj= new ResultObject() { Flag = 1, Message = "删除成功!", Result = id };
                 }
                 else
                 {
-                    return new ResultObject() { Flag = 0, Message = "删除失败!", Result = null };
+                    resultobj= new ResultObject() { Flag = 0, Message = "删除失败!", Result = null };
                 }
 
+                _db.Ado.CommitTran();
 
+                return resultobj;
 
             }
             catch(Exception ex)
             {
+                // 如果有任何异常，回滚事务
+                _db.Ado.RollbackTran();
+
                 return new ResultObject() { Flag = 0, Message = "删除失败!"+ ex.toString(), Result = null };
             }
         }

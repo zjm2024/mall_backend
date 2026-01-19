@@ -3,14 +3,18 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using publicClassLibrary.Entitys;
 using publicClassLibrary.Models;
+using publicClassLibrary.TokenMange;
 using shopadminService.Interfaces;
-using shopadminService.Services;
 using System.Text.Json;
 
 namespace shopadminService.Controllers
 {
+    [Anonymous]
     [ApiController]
     [Route("shopadminApi/Order/[action]")]
+
+ 
+
     public class OrderController : ControllerBase
     {
    
@@ -44,6 +48,49 @@ namespace shopadminService.Controllers
 
         }
 
-   
+
+
+        /// <summary>
+        /// 根据ID获取实体
+        /// </summary>
+        [HttpGet]
+        public ResultObject getOrdersById(int id)
+        {
+            var outobj = _orderservice.getOrdersById(id);
+            return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj, Count = 1, Subsidiary = 1 };
+        }
+
+
+        /// <summary>
+        /// 更新订单
+        /// </summary>
+        [HttpPost]
+        public ResultObject updateOrders([FromBody] JsonElement formData)
+        {
+            JsonElement jValue;
+            string json = ((!formData.TryGetProperty("data", out jValue)) ? "" : jValue.GetRawText());
+            var entity = JsonConvert.DeserializeObject(json, typeof(Orders));
+            if (entity == null)
+            {
+                return new ResultObject() { Flag = 0, Message = "参数为空!", Result = null };
+            }
+
+            //获取json中的修改字段
+            List<string> listColums = new List<string>();
+
+            JObject jsonobj = JObject.Parse(json);
+            foreach (JProperty prop in jsonobj.Properties())
+            {
+                listColums.Add(prop.Name);
+
+            }
+            string[] updateColums = listColums.ToArray();
+
+
+
+            return _orderservice.updateOrders((Orders)entity, updateColums);
+        }
+
+
     }
 }

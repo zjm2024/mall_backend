@@ -122,7 +122,7 @@ namespace shopadminService.Services
         /// </summary>
         /// <param name="Categories">分类cVO</param>
 
-        public ResultObject updateProducts(Products pV0,string[] updateColums = null)
+        public ResultObject updateProducts(Products pV0,string[] updateColums = null,string delSpecsids="")
         {
             //判断商品名称是否重复
             string productName = pV0.ProductName;
@@ -144,6 +144,20 @@ namespace shopadminService.Services
                 {
 
                     int id = Add<Products>(pV0);
+
+                    //如果有传递删除规格Ids 则先删除规格
+                    bool delSuccess = true;
+                    if (delSpecsids!="")
+                    {
+                        List<int> listids = delSpecsids.Split(',').Select(int.Parse).ToList();
+                        delSuccess = Delete<ProductSpecs>(listids);
+                  
+                    }
+                    if (!delSuccess)
+                    {
+                        throw new Exception();
+                    }
+
 
                     //保存规格
                     if (id > 0)
@@ -203,6 +217,7 @@ namespace shopadminService.Services
 
                             else
                             {
+                                item.UpdateTime = DateTime.Now;
                                 var success = Update<ProductSpecs>(item);
                                 if (!success)
                                     throw new Exception();
@@ -236,24 +251,30 @@ namespace shopadminService.Services
         /// <param name="id">商品id</param>
         public ResultObject deleteProducts(int id)
         {
+            _db.Ado.BeginTran();
             try
             {
+                dynamic resultobj;
 
                 bool isSuccess = Delete<Products>(id);
                 if (isSuccess)
                 {
-                    return new ResultObject() { Flag = 1, Message = "删除成功!", Result = id };
+                    resultobj= new ResultObject() { Flag = 1, Message = "删除成功!", Result = id };
                 }
                 else
                 {
-                    return new ResultObject() { Flag = 0, Message = "删除失败!", Result = null };
+                    resultobj= new ResultObject() { Flag = 0, Message = "删除失败!", Result = null };
                 }
 
+                _db.Ado.CommitTran();
 
+                return resultobj;
 
             }
             catch (Exception ex)
             {
+                // 如果有任何异常，回滚事务
+                _db.Ado.RollbackTran();
                 return new ResultObject() { Flag = 0, Message = "删除失败!" + ex.toString(), Result = null };
             }
         }
@@ -265,25 +286,33 @@ namespace shopadminService.Services
         /// <param name="ids">商品ids</param>
         public ResultObject deleteBatchProducts(string ids)
         {
+            _db.Ado.BeginTran();
             try
             {
+                dynamic resultobj;
                 List<int> listids = ids.Split(',').Select(int.Parse).ToList();
               
                 bool isSuccess = Delete<Products>(listids);
                 if (isSuccess)
                 {
-                    return new ResultObject() { Flag = 1, Message = "删除成功!", Result = ids };
+                    resultobj= new ResultObject() { Flag = 1, Message = "删除成功!", Result = ids };
                 }
                 else
                 {
-                    return new ResultObject() { Flag = 0, Message = "删除失败!", Result = null };
+                    resultobj= new ResultObject() { Flag = 0, Message = "删除失败!", Result = null };
                 }
 
+
+                _db.Ado.CommitTran();
+
+                return resultobj;
 
 
             }
             catch (Exception ex)
             {
+                // 如果有任何异常，回滚事务
+                _db.Ado.RollbackTran();
                 return new ResultObject() { Flag = 0, Message = "删除失败!" + ex.toString(), Result = null };
             }
         }
@@ -300,6 +329,81 @@ namespace shopadminService.Services
             outobj.ProductSpecs = productSpecs;
             return outobj;
         }
+
+        /// <summary>
+        /// 删除商品规格
+        /// </summary>
+        /// <param name="id">规格id</param>
+        public ResultObject deleteProductSpecs(int id)
+        {
+            _db.Ado.BeginTran();
+            try
+            {
+                dynamic resultobj;
+
+                bool isSuccess = Delete<ProductSpecs>(id);
+                if (isSuccess)
+                {
+                    resultobj= new ResultObject() { Flag = 1, Message = "删除成功!", Result = id };
+                }
+                else
+                {
+                    resultobj= new ResultObject() { Flag = 0, Message = "删除失败!", Result = null };
+                }
+
+                _db.Ado.CommitTran();
+
+                return resultobj;
+
+            }
+            catch (Exception ex)
+            {
+                // 如果有任何异常，回滚事务
+                _db.Ado.RollbackTran();
+
+                return new ResultObject() { Flag = 0, Message = "删除失败!" + ex.toString(), Result = null };
+            }
+        }
+
+
+
+        /// <summary>
+        /// 批量删除商品规格
+        /// </summary>
+        /// <param name="ids">规格ids</param>
+        public ResultObject  deleteBatchProductSpecs(string ids)
+        {
+            _db.Ado.BeginTran();
+            try
+            {
+                dynamic resultobj;
+                List<int> listids = ids.Split(',').Select(int.Parse).ToList();
+
+                bool isSuccess = Delete<ProductSpecs>(listids);
+                if (isSuccess)
+                {
+                    resultobj = new ResultObject() { Flag = 1, Message = "删除成功!", Result = ids };
+                }
+                else
+                {
+                    resultobj = new ResultObject() { Flag = 0, Message = "删除失败!", Result = null };
+                }
+
+
+                _db.Ado.CommitTran();
+
+                return resultobj;
+
+
+            }
+            catch (Exception ex)
+            {
+                // 如果有任何异常，回滚事务
+                _db.Ado.RollbackTran();
+                return new ResultObject() { Flag = 0, Message = "删除失败!" + ex.toString(), Result = null };
+            }
+        }
+
 
         public List<Categories> getCategoriesOptions(int appType,int businessId)
         {

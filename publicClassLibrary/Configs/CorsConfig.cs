@@ -14,7 +14,7 @@ namespace publicClassLibrary.Configs
                 options.AddPolicy("MyCorsPolicy", builder =>
                 {
                     builder.AllowAnyOrigin()
-                    .WithExposedHeaders(new[] { "Location", "Upload-Offset", "Upload-Length" })
+                 // .WithExposedHeaders(new[] { "Location", "Upload-Offset", "Upload-Length" })
                     .AllowAnyHeader()
                     .AllowAnyMethod();
 

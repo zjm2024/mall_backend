@@ -45,11 +45,11 @@ namespace shopadminService.Controllers
 
             int? productStatus = ((!jsonElement.TryGetProperty("productStatus", out outjValue)) ? null : outjValue.GetInt32());
 
-           string? categoryIds = ((!jsonElement.TryGetProperty("categoryIds", out outjValue)) ? null : outjValue.ToString());
+            string? categoryIds = ((!jsonElement.TryGetProperty("categoryIds", out outjValue)) ? null : outjValue.ToString());
 
 
             int totalCount = 0;
-            var outobj = _productservice.getProductsPageList(pageIndex, pageSize, appType,  businessId,  productName, productStatus, categoryIds, out totalCount);
+            var outobj = _productservice.getProductsPageList(pageIndex, pageSize, appType, businessId, productName, productStatus, categoryIds, out totalCount);
             return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj, Count = totalCount, Subsidiary = 1 };
         }
 
@@ -64,6 +64,8 @@ namespace shopadminService.Controllers
         {
             JsonElement jValue;
             string json = ((!formData.TryGetProperty("data", out jValue)) ? "" : jValue.GetRawText());
+            string delSpecsids = ((!formData.TryGetProperty("delSpecsids", out jValue)) ? "" : jValue.GetRawText());
+
             var entity = JsonConvert.DeserializeObject(json, typeof(Products));
             if (entity == null)
             {
@@ -83,7 +85,7 @@ namespace shopadminService.Controllers
 
 
 
-            return _productservice.updateProducts((Products)entity, updateColums);
+            return _productservice.updateProducts((Products)entity, updateColums, delSpecsids);
         }
 
 
@@ -116,11 +118,37 @@ namespace shopadminService.Controllers
             return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj, Count = 1, Subsidiary = 1 };
         }
 
+
+
+
+        /// <summary>
+        /// 删除商品规格
+        /// </summary>
+        [HttpGet]
+        public ResultObject deleteProductSpecs(int id)
+        {
+            return _productservice.deleteProductSpecs(id);
+        }
+
+
+
+        /// <summary>
+        /// 批量删除商品规格
+        /// </summary>
+        /// <param name="ids">规格ids</param>
+        [HttpGet]
+        public ResultObject deleteBatchProductSpecs(string ids)
+        {
+            return _productservice.deleteBatchProductSpecs(ids);
+        }
+
+
+
         /// <summary>
         /// 查询状态为显示的商品分类按树状结构输出 分类编号和分类名称，图片
         /// </summary>
         [HttpGet]
-        public ResultObject getCategoriesOptions(int appType,int businessId)
+        public ResultObject getCategoriesOptions(int appType, int businessId)
         {
             var list = _productservice.getCategoriesOptions(appType, businessId);
 
