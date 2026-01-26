@@ -17,6 +17,8 @@ namespace shopadminService.Interfaces
 
         Products getProductsById(int id);
 
+        ResultObject updateProductSpecsImage(ProductSpecs cVO, string[] updateColums = null);
+
         ResultObject deleteProductSpecs(int id);
 
         ResultObject deleteBatchProductSpecs(string ids);

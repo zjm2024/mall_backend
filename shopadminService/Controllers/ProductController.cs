@@ -120,6 +120,38 @@ namespace shopadminService.Controllers
 
 
 
+        /// <summary>
+        /// 修改规格图片
+        /// </summary>
+        [HttpPost]
+        public ResultObject updateProductSpecsImage([FromBody] JsonElement formData)
+        {
+            JsonElement jValue;
+            string json = ((!formData.TryGetProperty("data", out jValue)) ? "" : jValue.GetRawText());
+            var entity = JsonConvert.DeserializeObject(json, typeof(ProductSpecs));
+            if (entity == null)
+            {
+                return new ResultObject() { Flag = 0, Message = "参数为空!", Result = null };
+            }
+
+            //获取json中的修改字段
+            List<string> listColums = new List<string>();
+
+            JObject jsonobj = JObject.Parse(json);
+            foreach (JProperty prop in jsonobj.Properties())
+            {
+                listColums.Add(prop.Name);
+
+            }
+            string[] updateColums = listColums.ToArray();
+
+
+
+            return _productservice.updateProductSpecsImage((ProductSpecs)entity, updateColums);
+        }
+
+
+
 
         /// <summary>
         /// 删除商品规格

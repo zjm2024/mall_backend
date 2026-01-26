@@ -16,11 +16,14 @@ builder.Services.AddSharedDb(builder);    // 2.使用SqlSugar共享配置
 
 builder.Services.AddSharedCors(); //3.配置跨域请求
 
+builder.Services.AddHttpContextAccessor(); // 注册 IHttpContextAccessor
+
 // 4.注册服务
 builder.Services.AddScoped<IUserService, UserService>(); //用户服务
 builder.Services.AddScoped<ICategoryService, CategoryService>(); //类型服务
 builder.Services.AddScoped<IProductService, ProductService>(); //商品服务
 builder.Services.AddScoped<IOrderService, OrderService>(); //订单服务
+builder.Services.AddScoped<IUpLoadFileService, UpLoadFileService>(); //上传文件服务
 
 builder.Services.AddHttpContextAccessor();
 
@@ -42,6 +45,11 @@ var app = builder.Build();
 app.UseSharedSwagger(app.Environment); // 配置Swagger HTTP请求管道
 
 app.UseSharedCors();  // 配置 跨域请求
+
+app.UseDefaultFiles();
+
+app.UseStaticFiles(); // 启用静态文件访问（默认映射 wwwroot 文件夹）
+
 
 app.UseHttpsRedirection();
 

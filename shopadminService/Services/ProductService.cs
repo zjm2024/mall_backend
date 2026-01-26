@@ -5,12 +5,8 @@ using publicClassLibrary.Models;
 using publicClassLibrary.Services;
 using shopadminService.Interfaces;
 using SqlSugar;
-using System.Configuration;
 using System.Data;
-using System.Linq.Expressions;
-using System.Reflection.Metadata;
-using System.Text;
-using static Dm.parser.SQLProcessor;
+
 
 namespace shopadminService.Services
 {
@@ -329,6 +325,64 @@ namespace shopadminService.Services
             outobj.ProductSpecs = productSpecs;
             return outobj;
         }
+
+
+
+
+
+
+
+
+
+        /// <summary>
+        /// 修改规格图片
+        /// </summary>
+        /// <param name="ProductSpecs">规格cVO</param>
+
+        public ResultObject updateProductSpecsImage(ProductSpecs cVO, string[] updateColums = null)
+        {
+    
+            int specId = cVO.SpecId;
+  
+
+            _db.Ado.BeginTran();
+            try
+            {
+                dynamic resultobj=null;
+
+                if (specId != 0)
+                {
+
+                    bool isSuccess = Update<ProductSpecs>(cVO, updateColums);
+                    if (isSuccess)
+                        resultobj = new ResultObject() { Flag = 1, Message = "更新成功!", Result = cVO };
+                    else
+                        resultobj = new ResultObject() { Flag = 0, Message = "更新失败!", Result = null };
+                }
+
+                _db.Ado.CommitTran();
+
+                return resultobj;
+            }
+            catch (Exception ex)
+            {
+                // 如果有任何异常，回滚事务
+                _db.Ado.RollbackTran();
+                return new ResultObject() { Flag = 0, Message = "操作失败!", Result = null };
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
 
         /// <summary>
         /// 删除商品规格
