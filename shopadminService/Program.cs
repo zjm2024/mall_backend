@@ -25,7 +25,6 @@ builder.Services.AddScoped<IProductService, ProductService>(); //商品服务
 builder.Services.AddScoped<IOrderService, OrderService>(); //订单服务
 builder.Services.AddScoped<IUpLoadFileService, UpLoadFileService>(); //上传文件服务
 
-builder.Services.AddHttpContextAccessor();
 
 // 注册自定义转换器
 builder.Services.AddControllers()

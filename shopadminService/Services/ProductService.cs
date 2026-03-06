@@ -136,25 +136,24 @@ namespace shopadminService.Services
             try
             {
                 dynamic resultobj;
+
+                //如果有传递删除规格Ids 则先删除规格
+                bool delSuccess = true;
+                if (delSpecsids != "")
+                {
+                    List<int> listids = delSpecsids.Split(',').Select(int.Parse).ToList();
+                    delSuccess = Delete<ProductSpecs>(listids);
+
+                }
+                if (!delSuccess)
+                {
+                    throw new Exception();
+                }
+
                 if (productId == 0)
                 {
 
                     int id = Add<Products>(pV0);
-
-                    //如果有传递删除规格Ids 则先删除规格
-                    bool delSuccess = true;
-                    if (delSpecsids!="")
-                    {
-                        List<int> listids = delSpecsids.Split(',').Select(int.Parse).ToList();
-                        delSuccess = Delete<ProductSpecs>(listids);
-                  
-                    }
-                    if (!delSuccess)
-                    {
-                        throw new Exception();
-                    }
-
-
                     //保存规格
                     if (id > 0)
                     {
@@ -255,11 +254,18 @@ namespace shopadminService.Services
                 bool isSuccess = Delete<Products>(id);
                 if (isSuccess)
                 {
-                    resultobj= new ResultObject() { Flag = 1, Message = "删除成功!", Result = id };
+
+                    //删除规格
+                    bool success = Delete<ProductSpecs>(it => it.ProductId == id);
+
+                    if (isSuccess && success)
+                        resultobj = new ResultObject() { Flag = 1, Message = "删除成功!", Result = id };
+                    else
+                        resultobj = new ResultObject() { Flag = 0, Message = "删除失败!", Result = null };
                 }
                 else
                 {
-                    resultobj= new ResultObject() { Flag = 0, Message = "删除失败!", Result = null };
+                    resultobj = new ResultObject() { Flag = 0, Message = "删除失败!", Result = null };
                 }
 
                 _db.Ado.CommitTran();
@@ -291,7 +297,12 @@ namespace shopadminService.Services
                 bool isSuccess = Delete<Products>(listids);
                 if (isSuccess)
                 {
-                    resultobj= new ResultObject() { Flag = 1, Message = "删除成功!", Result = ids };
+                    //删除规格
+                    bool success = Delete<ProductSpecs>(it => listids.Contains(it.ProductId));
+                    if (isSuccess && success)
+                        resultobj = new ResultObject() { Flag = 1, Message = "删除成功!", Result = ids };
+                    else
+                        resultobj = new ResultObject() { Flag = 0, Message = "删除失败!", Result = null };
                 }
                 else
                 {

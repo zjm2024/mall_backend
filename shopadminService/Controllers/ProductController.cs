@@ -64,7 +64,7 @@ namespace shopadminService.Controllers
         {
             JsonElement jValue;
             string json = ((!formData.TryGetProperty("data", out jValue)) ? "" : jValue.GetRawText());
-            string delSpecsids = ((!formData.TryGetProperty("delSpecsids", out jValue)) ? "" : jValue.GetRawText());
+            string delSpecsids = ((!formData.TryGetProperty("delSpecsids", out jValue)) ? "" : jValue.ToString());
 
             var entity = JsonConvert.DeserializeObject(json, typeof(Products));
             if (entity == null)
