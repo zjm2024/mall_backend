@@ -28,7 +28,8 @@ namespace publicClassLibrary.Services
             {
                 var tVO = ((Tokens)list[0]);
                 var timeout = DateTime.Parse(tVO.Timeout.ToString());
-                if (timeout > DateTime.Now)
+                DateTime now = DateTime.Now;
+                if (timeout > now && now >= timeout.AddDays(-2))
                 {
                     //如果已经存在，更新timout
                     tVO.Timeout = DateTime.Now.AddSeconds(TokenTimeout);
@@ -36,10 +37,14 @@ namespace publicClassLibrary.Services
                     UpdateTokenTime(tVO);
                     return true;
                 }
-                else
+                else if (timeout <= now)
                 {
                     RemoveToken(tVO);
                     return false;
+                }
+                else
+                {
+                    return true;
                 }
             }
             return false;

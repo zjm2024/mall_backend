@@ -23,6 +23,8 @@ builder.Services.AddScoped<IUserService, UserService>(); //用户服务
 builder.Services.AddScoped<ICategoryService, CategoryService>(); //类型服务
 builder.Services.AddScoped<IProductService, ProductService>(); //商品服务
 builder.Services.AddScoped<IOrderService, OrderService>(); //订单服务
+builder.Services.AddScoped<ISeckillService, SeckillService>(); //秒杀服务
+
 builder.Services.AddScoped<IUpLoadFileService, UpLoadFileService>(); //上传文件服务
 
 

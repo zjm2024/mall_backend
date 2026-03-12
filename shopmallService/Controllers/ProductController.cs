@@ -27,13 +27,39 @@ namespace shopmallService.Controllers
         /// <summary>
         /// 根据条件获取实体
         /// </summary>
-        [HttpGet]
-        public ResultObject getCategoriesList(int appType)
+        [HttpGet, Anonymous]
+        public ResultObject getInfoList(int businessId,int appType)
         {
         
-            var list = _productservice.getCategoriesList(appType);
-            return new ResultObject() { Flag = 1, Message = "获取成功!", Result = list, Count = list.Count, Subsidiary = 1 };
+            var resultObject = _productservice.getInfoList(businessId, appType);
+            return resultObject;
         }
+
+
+        /// <summary>
+        /// 根据pageIndex,pageSize 分页获取实体，自动带输出参数返回总记录
+        /// </summary>
+        [HttpGet, Anonymous]
+        public ResultObject getProductsPageList(int pageIndex, int pageSize, string treePath, int businessId, int appType)
+        {
+            int totalCount;
+            var resultObject = _productservice.getProductsPageList(pageIndex, pageSize, treePath, businessId,appType, out totalCount);
+            return resultObject;
+        }
+
+
+        /// <summary>
+        /// 根据ID获取实体
+        /// </summary>
+        [HttpGet, Anonymous]
+        public ResultObject getProductsById(int productId)
+        {
+            var resultObject = _productservice.getProductsById(productId);
+            return resultObject;
+        }
+
+
+
 
         /// <summary>
         /// 更新或插入分类
@@ -50,80 +76,86 @@ namespace shopmallService.Controllers
             }
            return _productservice.updateCategories((Categories)entity);
         }
-        /*
+
+
+        /// <summary>
+        /// 获取商城首页数据
+        /// </summary>
         [HttpGet, Anonymous]
-        public ResultObject getTokenAll()
+        public ResultObject getCardByShare(int appType)
         {
-            var list = _productservice.getTokenAll();
-            return new ResultObject() { Flag = 1, Message = "获取成功!", Result = list, Count = 1, Subsidiary = 1 };
+            var resultObject = _productservice.getCardByShare(appType);
+            return resultObject;
         }
 
         /// <summary>
-        /// 查询全表实体 不推荐使用 除非表记录很少的情况下允许查询
+        /// 获取秒杀时间列表
         /// </summary>
-        [HttpGet]
-        public  ResultObject getProductsAll()
+        [HttpGet, Anonymous]
+        public ResultObject getSeckillTimersList(int appType)
         {
-            var list = _productservice.getProductsAll();
-            return new ResultObject() { Flag = 1, Message = "获取成功!", Result = list, Count = list.Count, Subsidiary = 1 };
-        }
-        /// <summary>
-        /// 根据ID获取实体
-        /// </summary>
-        [HttpGet]
-        public ResultObject getProductsById(int id)
-        {
-            var outobj = _productservice.getProductsById(id);
-            return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj, Count = 1, Subsidiary = 1 };
+            var resultObject = _productservice.getSeckillTimersList(appType);
+            return resultObject;
         }
 
         /// <summary>
-        /// 根据pageIndex,pageSize 分页获取实体，自动带输出参数返回总记录
+        /// 获取当天秒杀的商品列表
         /// </summary>
-        [HttpGet]
-        public ResultObject getProductsPageList(int pageIndex, int pageSize,int appType)
+        [HttpGet, Anonymous]
+        public ResultObject getCurDateSeckillList(string timer, int appType)
         {
-            int totalCount = 0;
-            var outobj = _productservice.getProductsPageList(pageIndex, pageSize, appType, out totalCount);
-            return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj, Count = totalCount, Subsidiary = 1 };
+            var resultObject = _productservice.getCurDateSeckillList(timer,appType);
+            return resultObject;
         }
+            /*
+            /// <summary>
+            /// 查询全表实体 不推荐使用 除非表记录很少的情况下允许查询
+            /// </summary>
+            [HttpGet]
+            public  ResultObject getProductsAll()
+            {
+                var list = _productservice.getProductsAll();
+                return new ResultObject() { Flag = 1, Message = "获取成功!", Result = list, Count = list.Count, Subsidiary = 1 };
+            }
 
-        /// <summary>
-        /// 根据条件获取实体
-        /// </summary>
-        [HttpGet]
-        public ResultObject getProductsList( int appType)
-        {
 
-            var list = _productservice.getProductsList(appType);
-            return new ResultObject() { Flag = 1, Message = "获取成功!", Result = list, Count = list.Count, Subsidiary = 1 };
+
+            /// <summary>
+            /// 根据条件获取实体
+            /// </summary>
+            [HttpGet]
+            public ResultObject getProductsList( int appType)
+            {
+
+                var list = _productservice.getProductsList(appType);
+                return new ResultObject() { Flag = 1, Message = "获取成功!", Result = list, Count = list.Count, Subsidiary = 1 };
+            }
+
+            [HttpGet]
+            public ResultObject getCustomClumnsProductsList(int appType)
+            {
+
+                var list = _productservice.getCustomClumnsProductsList(appType);
+                return new ResultObject() { Flag = 1, Message = "获取成功!", Result = list, Count = list.Count, Subsidiary = 1 };
+            }
+            [HttpGet]
+            public ResultObject getCustomClumnsProductsPageList(int pageIndex, int pageSize, int appType)
+            {
+
+                int totalCount = 0;
+                var outobj = _productservice.getCustomClumnsProductsPageList(pageIndex, pageSize, appType, out totalCount);
+                return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj, Count = totalCount, Subsidiary = 1 };
+
+            }
+
+
+
+            [HttpGet]
+            public ResultObject getProductSum(int appType)
+            {
+                var outobj = _productservice.getProductSum(appType);
+                return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj, Count = 1, Subsidiary = 1 };
+            }
+            */
         }
-
-        [HttpGet]
-        public ResultObject getCustomClumnsProductsList(int appType)
-        {
-
-            var list = _productservice.getCustomClumnsProductsList(appType);
-            return new ResultObject() { Flag = 1, Message = "获取成功!", Result = list, Count = list.Count, Subsidiary = 1 };
-        }
-        [HttpGet]
-        public ResultObject getCustomClumnsProductsPageList(int pageIndex, int pageSize, int appType)
-        {
-
-            int totalCount = 0;
-            var outobj = _productservice.getCustomClumnsProductsPageList(pageIndex, pageSize, appType, out totalCount);
-            return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj, Count = totalCount, Subsidiary = 1 };
-
-        }
-
-
-
-        [HttpGet]
-        public ResultObject getProductSum(int appType)
-        {
-            var outobj = _productservice.getProductSum(appType);
-            return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj, Count = 1, Subsidiary = 1 };
-        }
-        */
-    }
 }

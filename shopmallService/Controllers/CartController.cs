@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using publicClassLibrary.Models;
+using publicClassLibrary.TokenMange;
 using shopmallService.Interfaces;
 using shopmallService.Services;
 
@@ -18,11 +19,11 @@ namespace shopmallService.Controllers
             _cartservice = cartservice;
         }
 
-        [HttpGet]
-        public ResultObject TestGet()
+        [HttpGet, Anonymous]
+        public ResultObject getCartByIndex(int personalId, int appType)
         {
-            string aaa = "";
-            return new ResultObject() { Flag = 1, Message = "获取成功!", Result = aaa, Count = 1, Subsidiary = 1 };
+            var resultObject = _cartservice.getCartByIndex(personalId, appType);
+            return resultObject;
 
         }
 

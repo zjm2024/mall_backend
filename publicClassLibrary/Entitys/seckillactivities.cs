@@ -19,6 +19,9 @@ namespace publicClassLibrary.Entitys
         [SugarColumn(ColumnName = "AppType", ColumnDescription = "应用类型")]
         public int AppType { get; set; }
 
+        [SugarColumn(ColumnName = "BusinessId", ColumnDescription = "商家ID")]
+        public int BusinessId { get; set; }
+
         [SugarColumn(ColumnName = "ProductId", ColumnDescription = "商品ID")]
         public int ProductId { get; set; }
 
@@ -33,6 +36,10 @@ namespace publicClassLibrary.Entitys
 
         [SugarColumn(ColumnName = "UsedStock", ColumnDescription = "已售库存")]
         public int UsedStock { get; set; }
+
+        [SugarColumn(ColumnName = "SoldPercent", ColumnDescription = "已售百分比")]
+        public int SoldPercent { get; set; }
+        
 
         [SugarColumn(ColumnName = "StartTime", ColumnDescription = "开始时间")]
         public DateTime StartTime { get; set; }
@@ -50,10 +57,27 @@ namespace publicClassLibrary.Entitys
         public int AutoExtend { get; set; }
 
         [SugarColumn(ColumnName = "CreateTime", ColumnDescription = "创建时间")]
-        public DateTime CreateTime { get; set; }
+        public DateTime CreateTime { get; set; } = DateTime.Now;
 
         [SugarColumn(ColumnName = "UpdateTime", ColumnDescription = "更新时间")]
-        public DateTime UpdateTime { get; set; }
+        public DateTime? UpdateTime { get; set; } = null;
+
+        
+        //商家名称
+        [SugarColumn(IsIgnore = true)]
+        public string BusinessName { get; set; }
+
+        //商品编号
+        [SugarColumn(IsIgnore = true)]
+        public string ProductNo { get; set; }
+        //商品名称
+        [SugarColumn(IsIgnore = true)]
+        public string ProductName { get; set; }
+        //商品主图
+        [SugarColumn(IsIgnore = true)]
+        public string ProductImage { get; set; }
+        
+
     }
 
 }

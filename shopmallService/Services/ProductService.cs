@@ -1,33 +1,124 @@
-﻿using publicClassLibrary.Entitys;
+﻿using Dm.util;
+using publicClassLibrary.Entitys;
 using publicClassLibrary.Helpers;
 using publicClassLibrary.Models;
 using publicClassLibrary.Services;
 using shopmallService.Interfaces;
 using SqlSugar;
+using StackExchange.Redis;
+using System.Security.AccessControl;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace shopmallService.Services
 {
 
     public class ProductService : BaseService, IProductService
     {
-        //private readonly SqlSugarHelper _dbHelper;
-        //private readonly ISqlSugarClient _db;
+        private readonly SqlSugarHelper _dbHelper;
+        private readonly ISqlSugarClient _db;
         public ProductService(SqlSugarHelper dbHelper, ISqlSugarClient db) : base(dbHelper)
         {
             //基本查询接口可以直接调用，如果没有特殊情况可以不引用 _dbHelper和 db 
-
-            //_dbHelper = dbHelper;
-            //_db = db;
+            _dbHelper = dbHelper;
+            _db = db;
         }
 
-        public List<Categories> getCategoriesList(int appType)
+        public ResultObject getInfoList( int businessId, int appType)
+        {
+            try
+            {
+                //加排序
+
+                List<OrderByModel> orderbyList = OrderByModel.Create(
+                new OrderByModel() { FieldName = "SortOrder", OrderByType = OrderByType.Asc });
+
+                /*
+                var categoriesList = GetList<Categories,dynamic>(it => it.BusinessId == businessID && it.AppType == appType && it.ParentId == 0 && it.Status == 1,
+                 it => new { it.CategoryId, it.CategoryName, it.Icon, it.SortOrder },
+                orderbyList);
+                */
+
+
+                //加查询条件
+                var conModels = new List<IConditionalModel>();
+                conModels.add(new ConditionalModel { FieldName = "AppType", ConditionalType = ConditionalType.Equal, FieldValue = appType.toString() });
+                conModels.add(new ConditionalModel { FieldName = "BusinessId", ConditionalType = ConditionalType.Equal, FieldValue = businessId.toString() });
+                conModels.add(new ConditionalModel { FieldName = "Status", ConditionalType = ConditionalType.Equal, FieldValue = "1" });
+
+                //查询树状结构
+                var categoriesList = _db.Queryable<Categories>().Where(conModels).OrderBy(orderbyList).ToTree(it => it.Children, it => it.ParentId, 0, it => it.CategoryId).ToList();
+
+
+                object res = new
+                {
+                    CategoriesList = categoriesList,
+
+                };
+
+                return new ResultObject() { Flag = 1, Message = "获取成功!", Result = res };
+            }
+            catch (Exception ex)
+            {
+                return new ResultObject() { Flag = 0, Message = "获取失败!", Result = ex.ToString() };
+            }
+        }
+
+
+        public ResultObject getProductsPageList(int pageIndex, int pageSize, string treePath, int businessId, int appType, out int totalCount)
         {
             //加排序
             List<OrderByModel> orderbyList = OrderByModel.Create(
-              new OrderByModel() { FieldName = "SortOrder", OrderByType = OrderByType.Asc });
-            var list = GetList<Categories>(it => it.AppType == appType && it.Status == 1, orderbyList);
-            return list;
+               new OrderByModel() { FieldName = "SortOrder", OrderByType = OrderByType.Asc });
+
+            //查询当前分类的产品
+            var conModels1 = new List<IConditionalModel>();
+            conModels1.add(new ConditionalModel { FieldName = "BusinessId", ConditionalType = ConditionalType.Equal, FieldValue = businessId.toString() });
+            conModels1.add(new ConditionalModel { FieldName = "TreePath", ConditionalType = ConditionalType.LikeLeft, FieldValue = treePath.toString() });
+            conModels1.add(new ConditionalModel { FieldName = "ProductStatus", ConditionalType = ConditionalType.Equal, FieldValue = "1" });
+
+
+            var allProductsList = GetPageList<Products, dynamic>(pageIndex, pageSize, out totalCount, conModels1,
+
+                   it => new
+                   {
+                       ProductId = it.ProductId,
+                       ProductName = it.ProductName,
+                       ProductImage = it.ProductImage,
+                       CurrentPrice = it.CurrentPrice,
+                       OriginalPrice = it.OriginalPrice,
+                       Sales = it.Sales,
+                       PerPersonLimit = it.PerPersonLimit,
+                       CategoryId = it.CategoryId,
+                       ProductStatus = it.ProductStatus,
+                       TreePath=it.TreePath,
+                       CreateTime = SqlFunc.ToString(it.CreateTime)
+                   },
+                   orderbyList);
+
+            object res = new
+            {
+                AllProductsList = allProductsList
+
+            };
+
+            return new ResultObject() { Flag = 1, Message = "获取成功!", Result = res };
         }
+
+
+        public ResultObject getProductsById(int productId)
+        {
+            var outobj = GetById<ViewProducts>(productId);
+            //带上规格
+            //加排序
+            List<OrderByModel> orderbyList = OrderByModel.Create(
+              new OrderByModel() { FieldName = "SortOrder", OrderByType = OrderByType.Asc });
+
+            var productSpecs = GetList<ProductSpecs>(it => it.ProductId == productId, orderbyList);
+            outobj.ProductSpecs = productSpecs;
+
+            return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj };
+        }
+
 
 
         /// <summary>
@@ -68,27 +159,150 @@ namespace shopmallService.Services
             }
         }
 
-
-
-
-        /*
-        public Dictionary<string, object> getTokenAll()
+        /// <summary>
+        /// 获取商城首页数据
+        /// </summary>
+        public ResultObject getCardByShare(int appType)
         {
-            string sql = "select * from T_CSC_Token where 1=1 and  Token = 'bb66fea0-18bc-4562-9b3c-0330931db897'  ;";
-            sql += "select * from mall_products ; ";
-
-            var result = new Dictionary<string, object>();
-
-            //var list = SqlQuery<dynamic>(sql);
-            var ds = SqlQuery(sql);
-            for (int i = 0;i<ds.Tables.Count;i++)
+            try
             {
-                var table = ds.Tables[i];
-                result[table.TableName] = MapTableToList(table);
+                List<OrderByModel> orderbyList = OrderByModel.Create(
+                new OrderByModel() { FieldName = "SortOrder", OrderByType = OrderByType.Asc });
+
+                //默认选择8条分类数据
+                int pageIndex = 1;
+                int pageSize = 8;
+                int totalCount;
+
+                var categoriesList = GetPageList<Categories, dynamic>(pageIndex, pageSize, out totalCount, it => it.AppType == appType && it.ParentId == 0 && it.Status == 1,
+                    it => new { it.CategoryId, it.CategoryName, it.Icon, it.SortOrder },
+                    orderbyList);
+
+
+                //轮播商品
+                var bannerProductList= GetList<ViewProducts, dynamic>(it =>  it.AppType == appType && it.BannerProduct == 1 && it.ProductStatus == 1,
+                  it => new {it.BusinessId, it.BusinessName, it.ProductId, it.ProductName, it.ProductImage, it.CurrentPrice, it.OriginalPrice, it.Sales, it.PerPersonLimit, it.SortOrder });
+
+
+
+                //推荐商品
+                var hostProductList = GetList<ViewProducts, dynamic>(it =>  it.AppType == appType && it.HotProduct == 1 && it.ProductStatus == 1,
+                  it => new {it.BusinessId,it.BusinessName,it.ProductId, it.ProductName, it.ProductImage, it.CurrentPrice, it.OriginalPrice, it.Sales, it.PerPersonLimit, it.SortOrder });
+
+
+                //秒杀商品
+                var seckillProductList = _db.Queryable<SeckillActivities>()
+                .LeftJoin<Products>((s, p) => s.ProductId == p.ProductId)
+                .LeftJoin<Business>((s,p, b)=>s.BusinessId==b.BusinessId)
+                .Where(s =>  s.AppType == appType && s.Status == 1 && s.EndTime>DateTime.Now)
+                .Select((s,p,b) => new
+                {
+                    SeckillId = s.SeckillId,
+                    BusinessId = s.BusinessId,
+                    BusinessName = b.BusinessName,
+                    ProductId = s.ProductId,
+                    ProductName = p.ProductName,
+                    ProductImage = p.ProductImage,
+                    SeckillPrice = s.SeckillPrice,
+                    OriginalPrice = p.OriginalPrice,
+                    ActivityStock = s.ActivityStock,
+                    UsedStock = s.UsedStock,
+                    SoldPercent = s.SoldPercent,
+                    PerPersonLimit = s.PerPersonLimit,
+                    StartTime = s.StartTime,
+                    EndTime = s.EndTime
+                })
+                .ToList();
+
+
+                object res = new
+                {
+                    CategoriesList = categoriesList,
+                    BannerProductList= bannerProductList,
+                    HostProductList = hostProductList,
+                    SeckillProductList = seckillProductList,
+
+                };
+                return new ResultObject() { Flag = 1, Message = "获取成功!", Result = res };
             }
-            return result;
+
+            catch (Exception ex)
+            {
+                return new ResultObject() { Flag = 0, Message = "获取失败!", Result = ex.ToString() };
+            }
         }
 
+
+        public ResultObject getSeckillTimersList(int appType)
+        {
+            try
+            {
+                //秒杀时间段
+                var seckillTimerList = GetList<SeckillTimers, dynamic>(it => it.AppType == appType, it => new { it.TimerId, it.SeckillTime, it.SeckillMinutes, it.SortOrder }).OrderBy(it => it.SortOrder).ToList();
+                object res = new
+                {
+                    seckillTimerList = seckillTimerList
+
+                };
+                return new ResultObject() { Flag = 1, Message = "获取成功!", Result = res };
+
+            }
+            catch (Exception ex)
+            {
+                return new ResultObject() { Flag = 0, Message = "获取失败!", Result = ex.ToString() };
+            }
+        }
+
+        public ResultObject getCurDateSeckillList(string timer, int appType)
+        {
+            try
+            {
+
+                List<OrderByModel> orderbyList = OrderByModel.Create(
+                new OrderByModel() { FieldName = "EndTime", OrderByType = OrderByType.Asc });
+
+                var curDateTime = DateTime.Today.ToShortDateString() + " " + timer;
+                //秒杀商品
+                var seckillProductList = _db.Queryable<SeckillActivities>()
+                .LeftJoin<Products>((s, p) => s.ProductId == p.ProductId)
+                .LeftJoin<Business>((s, p, b) => s.BusinessId == b.BusinessId)
+                .Where(s => s.AppType == appType  && SqlFunc.ToDate(s.StartTime) == SqlFunc.ToDate(curDateTime))
+                .Select((s, p, b) => new
+                {
+                    SeckillId = s.SeckillId,
+                    BusinessId = s.BusinessId,
+                    BusinessName = b.BusinessName,
+                    ProductId = s.ProductId,
+                    ProductName = p.ProductName,
+                    ProductImage = p.ProductImage,
+                    SeckillPrice = s.SeckillPrice,
+                    OriginalPrice = p.OriginalPrice,
+                    ActivityStock = s.ActivityStock,
+                    UsedStock = s.UsedStock,
+                    SoldPercent = s.SoldPercent,
+                    PerPersonLimit = s.PerPersonLimit,
+                    StartTime = s.StartTime,
+                    EndTime = s.EndTime,
+                    Status=s.Status
+                })
+                .ToList();
+
+                object res = new
+                {
+                    SeckillProductList = seckillProductList,
+
+                };
+                return new ResultObject() { Flag = 1, Message = "获取成功!", Result = res };
+
+            }
+            catch (Exception ex)
+            {
+                return new ResultObject() { Flag = 0, Message = "获取失败!", Result = ex.ToString() };
+            }
+        }
+
+        /*
+     
 
         public List<products> getProductsAll()
         {
@@ -97,22 +311,7 @@ namespace shopmallService.Services
             return list;
 
         }
-        public products getProductsById(int id)
-        {
-            var outobj = GetById<products>(id);
-            return outobj;
-        }
-
-        public List<products> getProductsPageList(int pageIndex, int pageSize, int appType, out int totalCount)
-        {
-            //加排序
-
-            List<OrderByModel> orderbyList = OrderByModel.Create(
-               new OrderByModel() { FieldName = "ProductId", OrderByType = OrderByType.Desc });
-
-            var list = GetPageList<products>(pageIndex, pageSize, out totalCount, it => it.AppType == appType, orderbyList);
-            return list;
-        }
+      
 
         public List<products> getProductsList(int appType)
         {

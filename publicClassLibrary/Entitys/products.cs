@@ -29,6 +29,10 @@ namespace publicClassLibrary.Entitys
         [SugarColumn(ColumnName = "TreePath", ColumnDescription = "分类树路径", Length = 255)]
         public string TreePath { get; set; }
 
+        
+        [SugarColumn(ColumnName = "ProductNo", ColumnDescription = "商品编号", Length = 255)]
+        public string ProductNo { get; set; }
+
         [SugarColumn(ColumnName = "ProductName", ColumnDescription = "商品名称", Length = 255)]
         public string ProductName { get; set; }
 
@@ -66,6 +70,14 @@ namespace publicClassLibrary.Entitys
         [SugarColumn(ColumnName = "ProductStatus", ColumnDescription = "产品状态:1-上架 0-下架")]
         public int ProductStatus { get; set; }
 
+        [SugarColumn(ColumnName = "HotProduct", ColumnDescription = "推荐商品:1-热门推荐 0-不热门推荐")]
+        public int HotProduct { get; set; }
+
+        [SugarColumn(ColumnName = "BannerProduct", ColumnDescription = "轮播商品:1-轮播 0-不轮播")]
+        public int BannerProduct { get; set; }
+        
+
+
         [SugarColumn(ColumnName = "SortOrder", ColumnDescription = "排序")]
         public int SortOrder { get; set; }
 
@@ -85,10 +97,10 @@ namespace publicClassLibrary.Entitys
         public int MaxDailyOrders { get; set; }
 
         [SugarColumn(ColumnName = "CreateTime", ColumnDescription = "创建时间")]
-        public DateTime CreateTime { get; set; } = DateTime.Now;
+        public DateTime CreateTime { get; set; }  = DateTime.Now;
 
         [SugarColumn(ColumnName = "UpdateTime", ColumnDescription = "更新时间")]
-        public DateTime UpdateTime { get; set; }
+        public DateTime? UpdateTime { get; set; } = null;
 
         /// <summary>
         /// 商品规格

@@ -77,10 +77,10 @@ namespace publicClassLibrary.Entitys
         public DateTime CloseTime { get; set; }
 
         [SugarColumn(ColumnName = "CreateTime", ColumnDescription = "创建时间")]
-        public DateTime CreateTime { get; set; }
+        public DateTime CreateTime { get; set; } = DateTime.Now;
 
         [SugarColumn(ColumnName = "UpdateTime", ColumnDescription = "更新时间")]
-        public DateTime UpdateTime { get; set; }
+        public DateTime? UpdateTime { get; set; } = null;
     }
 
 }

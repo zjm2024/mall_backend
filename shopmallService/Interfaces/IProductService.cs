@@ -8,17 +8,27 @@ namespace shopmallService.Interfaces
     public interface IProductService:IBaseService
     {
 
-        
-        List<Categories> getCategoriesList(int appType);
+
+        ResultObject getInfoList(int businessId, int appType);
+
+        ResultObject getProductsPageList(int pageIndex, int pageSize, string treePath, int businessId ,int appType, out int totalCount);
+
+        ResultObject getProductsById(int productId);
 
         ResultObject updateCategories(Categories cV0);
+
+        ResultObject getCardByShare(int appType);
+
+        ResultObject getSeckillTimersList(int appType);
+
+        ResultObject getCurDateSeckillList(string timer,int appType);
+
         /*
-        Dictionary<string, object> getTokenAll();
         List<products> getProductsAll();
 
-        products getProductsById(int id);
+      
 
-        List<products> getProductsPageList(int pageIndex, int pageSize,int appType,out int totalCount);
+
 
         List<products> getProductsList(int appType);
 

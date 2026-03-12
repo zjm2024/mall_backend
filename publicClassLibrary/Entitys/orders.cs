@@ -23,10 +23,8 @@ namespace publicClassLibrary.Entitys
         public int AppType { get; set; }
 
         [SugarColumn(ColumnName = "PersonalID", ColumnDescription = "买家ID")]
-        public int PersonalID { get; set; }
+        public int PersonalId { get; set; }
 
-        [SugarColumn(ColumnName = "BusinessId", ColumnDescription = "商家ID")]
-        public int BusinessId { get; set; }
 
         [SugarColumn(ColumnName = "TotalAmount", ColumnDescription = "订单总金额")]
         public decimal TotalAmount { get; set; }
@@ -54,6 +52,12 @@ namespace publicClassLibrary.Entitys
 
         [SugarColumn(ColumnName = "PayTime", ColumnDescription = "支付时间")]
         public DateTime PayTime { get; set; }
+
+
+        [SugarColumn(ColumnName = "TotalCount", ColumnDescription = "总商品数量")]
+        public int TotalCount { get; set; }
+
+        
 
         [SugarColumn(ColumnName = "ActivityType", ColumnDescription = "活动类型:0-普通 1-秒杀 2-团购")]
         public int ActivityType { get; set; }
@@ -106,11 +110,21 @@ namespace publicClassLibrary.Entitys
         [SugarColumn(ColumnName = "Remark", ColumnDescription = "订单备注")]
         public string Remark { get; set; }
 
+        
+        [SugarColumn(ColumnName = "CancelTime", ColumnDescription = "取消时间")]
+        public DateTime? CancelTime { get; set; } = null;
+
         [SugarColumn(ColumnName = "CreateTime", ColumnDescription = "创建时间")]
-        public DateTime CreateTime { get; set; }
+        public DateTime CreateTime { get; set; } = DateTime.Now;
 
         [SugarColumn(ColumnName = "UpdateTime", ColumnDescription = "更新时间")]
-        public DateTime UpdateTime { get; set; }
+        public DateTime? UpdateTime { get; set; } = null;
+
+        /// <summary>
+        /// 子订单
+        /// </summary>
+        [SugarColumn(IsIgnore = true)]
+        public List<OrdersSubs> OrdersSubs { get; set; } = new List<OrdersSubs>();
     }
 
 }
