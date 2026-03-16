@@ -7,7 +7,7 @@ namespace shopadminService.Interfaces
 {
     public interface IProductService
     {
-        List<Products> getProductsPageList(int pageIndex, int pageSize, int appType, int businessId, string? productName, int? productStatus,string? categoryIds, out int totalCount);
+        ResultObject getProductsPageList(int pageIndex, int pageSize, int appType, int businessId, string? productName, int? productStatus,string? categoryIds);
 
         ResultObject updateProducts(Products pV0, string[] updateColums = null, string delSpecsids = "");
 
@@ -15,7 +15,7 @@ namespace shopadminService.Interfaces
 
         ResultObject deleteBatchProducts(string ids);
 
-        Products getProductsById(int id);
+        ViewProducts getProductsById(int id);
 
         ResultObject updateProductSpecsImage(ProductSpecs cVO, string[] updateColums = null);
 

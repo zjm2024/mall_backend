@@ -22,6 +22,9 @@ namespace publicClassLibrary.Entitys
         [SugarColumn(ColumnName = "BusinessId", ColumnDescription = "商家ID")]
         public int BusinessId { get; set; }
 
+        [SugarColumn(ColumnName = "BusinessNo", ColumnDescription = "商家编号", Length = 50)]
+        public string BusinessNo { get; set; }
+
         [SugarColumn(ColumnName = "BusinessName", ColumnDescription = "商家名称", Length = 255)]
         public string BusinessName { get; set; }
 
@@ -31,6 +34,13 @@ namespace publicClassLibrary.Entitys
         
         [SugarColumn(ColumnName = "TreePath", ColumnDescription = "分类树路径", Length = 255)]
         public string TreePath { get; set; }
+
+
+        [SugarColumn(ColumnName = "TreePathName", ColumnDescription = "分类树路径名称", Length = 255)]
+        public string TreePathName { get; set; }
+
+        [SugarColumn(ColumnName = "ProductNo", ColumnDescription = "商品编号", Length = 50)]
+        public string ProductNo { get; set; }
 
         [SugarColumn(ColumnName = "ProductName", ColumnDescription = "商品名称", Length = 255)]
         public string ProductName { get; set; }

@@ -20,97 +20,105 @@ namespace shopadminService.Services
             _db = db;
         }
 
-        public List<Products> getProductsPageList(int pageIndex, int pageSize, int appType, int businessId, string? productName, int? productStatus, string? categoryIds, out int totalCount)
+        public ResultObject getProductsPageList(int pageIndex, int pageSize, int appType, int businessId, string? productName, int? productStatus, string? categoryIds)
         {
             //加排序
-
-            List<OrderByModel> orderbyList = OrderByModel.Create(
+            try
+            {
+                List<OrderByModel> orderbyList = OrderByModel.Create(
                new OrderByModel() { FieldName = "ProductId", OrderByType = OrderByType.Desc });
 
-            /*
+                /*
 
-            Expression expbody = null;
+                Expression expbody = null;
 
-            ParameterExpression param = Expression.Parameter(typeof(Products), "it");
-            Expression expappType = Expression.Equal(Expression.Property(param, "AppType"), Expression.Constant(appType));
+                ParameterExpression param = Expression.Parameter(typeof(Products), "it");
+                Expression expappType = Expression.Equal(Expression.Property(param, "AppType"), Expression.Constant(appType));
 
-            expbody = expappType;
-
-
-            if (productStatus != null)
-            {
-                Expression expstatus = Expression.Equal(Expression.Property(param, "ProductStatus"), Expression.Constant(productStatus));
-                expbody = Expression.AndAlso(expappType, expstatus);
-            }
+                expbody = expappType;
 
 
-            Expression<Func<Products, bool>> lambdaExpression = Expression.Lambda<Func<Products, bool>>(
-                expbody,
-                param
-            );
-            */
-
-            //加查询条件
-            var conModels = new List<IConditionalModel>();
-            conModels.add(new ConditionalModel { FieldName = "AppType", ConditionalType = ConditionalType.Equal, FieldValue = appType.toString() });
-            conModels.add(new ConditionalModel { FieldName = "BusinessId", ConditionalType = ConditionalType.Equal, FieldValue = businessId.toString() });
-
-            if (productName != null)
-            {
-                conModels.add(new ConditionalModel { FieldName = "ProductName", ConditionalType = ConditionalType.Like, FieldValue = productName.toString() });
-            }
-
-            if (productStatus != null)
-            {
-                conModels.add(new ConditionalModel { FieldName = "ProductStatus", ConditionalType = ConditionalType.Equal, FieldValue = productStatus.toString() });
-            }
-            if (categoryIds != null)
-            {
-                string[] categoryids = categoryIds.Split(',');
-                var con = new ConditionalCollections();
-
-                var conditionalLists = new List<KeyValuePair<WhereType, SqlSugar.ConditionalModel>>();
-
-                for (int i = 0; i < categoryids.Length; i++)
+                if (productStatus != null)
                 {
-                    string categoryid = categoryids[i];
+                    Expression expstatus = Expression.Equal(Expression.Property(param, "ProductStatus"), Expression.Constant(productStatus));
+                    expbody = Expression.AndAlso(expappType, expstatus);
+                }
 
 
-                    if (i == 0)
+                Expression<Func<Products, bool>> lambdaExpression = Expression.Lambda<Func<Products, bool>>(
+                    expbody,
+                    param
+                );
+                */
+
+                //加查询条件
+                var conModels = new List<IConditionalModel>();
+                conModels.add(new ConditionalModel { FieldName = "AppType", ConditionalType = ConditionalType.Equal, FieldValue = appType.toString() });
+                conModels.add(new ConditionalModel { FieldName = "BusinessId", ConditionalType = ConditionalType.Equal, FieldValue = businessId.toString() });
+
+                if (productName != null)
+                {
+                    conModels.add(new ConditionalModel { FieldName = "ProductName", ConditionalType = ConditionalType.Like, FieldValue = productName.toString() });
+                }
+
+                if (productStatus != null)
+                {
+                    conModels.add(new ConditionalModel { FieldName = "ProductStatus", ConditionalType = ConditionalType.Equal, FieldValue = productStatus.toString() });
+                }
+                if (categoryIds != null)
+                {
+                    string[] categoryids = categoryIds.Split(',');
+                    var con = new ConditionalCollections();
+
+                    var conditionalLists = new List<KeyValuePair<WhereType, SqlSugar.ConditionalModel>>();
+
+                    for (int i = 0; i < categoryids.Length; i++)
                     {
-                        var kk = new KeyValuePair<WhereType, ConditionalModel>(
-                             WhereType.And,
-                             new ConditionalModel() { FieldName = "TreePath", ConditionalType = ConditionalType.LikeLeft, FieldValue = categoryid.toString() });
+                        string categoryid = categoryids[i];
 
-                        conditionalLists.Add(kk);
+
+                        if (i == 0)
+                        {
+                            var kk = new KeyValuePair<WhereType, ConditionalModel>(
+                                 WhereType.And,
+                                 new ConditionalModel() { FieldName = "TreePath", ConditionalType = ConditionalType.LikeLeft, FieldValue = categoryid.toString() });
+
+                            conditionalLists.Add(kk);
+
+                        }
+
+
+                        else
+                        {
+
+                            var bb = new KeyValuePair<WhereType, ConditionalModel>(
+                              WhereType.Or,
+                              new ConditionalModel() { FieldName = "CategoryId", ConditionalType = ConditionalType.LikeLeft, FieldValue = categoryid.toString() });
+
+                            conditionalLists.Add(bb);
+
+
+                        }
+
 
                     }
+                    con.ConditionalList = conditionalLists;
+                    conModels.add(con);
 
-
-                    else
-                    {
-
-                        var bb = new KeyValuePair<WhereType, ConditionalModel>(
-                          WhereType.Or,
-                          new ConditionalModel() { FieldName = "CategoryId", ConditionalType = ConditionalType.LikeLeft, FieldValue = categoryid.toString() });
-
-                        conditionalLists.Add(bb);
-
-
-                    }
-
+                    //onModels.add(new ConditionalModel { FieldName = "CategoryId", ConditionalType = ConditionalType.Like, FieldValue = categoryIds.toString() });
 
                 }
-                con.ConditionalList = conditionalLists;
-                conModels.add(con);
-
-                //onModels.add(new ConditionalModel { FieldName = "CategoryId", ConditionalType = ConditionalType.Like, FieldValue = categoryIds.toString() });
+                var totalCount = 0;
+                var outobj = GetPageList<ViewProducts>(pageIndex, pageSize, out totalCount, conModels, orderbyList);
+                return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj, Count = totalCount };
 
             }
-            var list = GetPageList<Products>(pageIndex, pageSize, out totalCount, conModels, orderbyList);
-            return list;
+            catch (Exception ex)
+            {
+                return new ResultObject() { Flag = 0, Message = "获取失败!", Result = ex.ToString() };
+            }
         }
-        
+
 
 
         /// <summary>
@@ -324,9 +332,9 @@ namespace shopadminService.Services
             }
         }
 
-        public Products getProductsById(int id)
+        public ViewProducts getProductsById(int id)
         {
-            var outobj = GetById<Products>(id);
+            var outobj = GetById<ViewProducts>(id);
             //查找规格
             //加排序
             List<OrderByModel> orderbyList = OrderByModel.Create(

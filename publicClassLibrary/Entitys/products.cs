@@ -29,7 +29,9 @@ namespace publicClassLibrary.Entitys
         [SugarColumn(ColumnName = "TreePath", ColumnDescription = "分类树路径", Length = 255)]
         public string TreePath { get; set; }
 
-        
+        [SugarColumn(ColumnName = "TreePathName", ColumnDescription = "分类树路径名称", Length = 255)]
+        public string TreePathName { get; set; }
+
         [SugarColumn(ColumnName = "ProductNo", ColumnDescription = "商品编号", Length = 255)]
         public string ProductNo { get; set; }
 

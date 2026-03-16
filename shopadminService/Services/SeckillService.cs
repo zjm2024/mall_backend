@@ -77,6 +77,8 @@ namespace shopadminService.Services
                        ActivityStock = s.ActivityStock,
                        UsedStock = s.UsedStock,
                        SoldPercent = s.SoldPercent,
+                       ActivityDate = s.ActivityDate,
+                       SeckillTime = s.SeckillTime,
                        StartTime = s.StartTime,
                        EndTime = s.EndTime,
                        Status = s.Status,
@@ -165,6 +167,19 @@ namespace shopadminService.Services
             try
             {
                 var outobj = GetById<SeckillActivities>(id);
+                return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj };
+            }
+            catch (Exception ex)
+            {
+                return new ResultObject() { Flag = 0, Message = "获取失败!", Result = ex.ToString() };
+            }
+        }
+
+        public ResultObject getTimeOptions(int appType)
+        {
+            try
+            {
+                var outobj = GetList<SeckillTimers,dynamic>(it=>it.AppType== appType, it => new { it.TimerId,it.SeckillTime,it.SeckillMinutes,it.SortOrder }).OrderBy(it=>it.SortOrder);
                 return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj };
             }
             catch (Exception ex)

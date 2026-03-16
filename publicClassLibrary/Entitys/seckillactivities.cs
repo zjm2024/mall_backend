@@ -39,7 +39,15 @@ namespace publicClassLibrary.Entitys
 
         [SugarColumn(ColumnName = "SoldPercent", ColumnDescription = "已售百分比")]
         public int SoldPercent { get; set; }
+
         
+        [SugarColumn(ColumnName = "ActivityDate", ColumnDescription = "活动日期")]
+        public DateTime ActivityDate { get; set; }
+
+
+        [SugarColumn(ColumnName = "SeckillTime", ColumnDescription = "秒杀时间", Length = 50)]
+        public string SeckillTime { get; set; }
+ 
 
         [SugarColumn(ColumnName = "StartTime", ColumnDescription = "开始时间")]
         public DateTime StartTime { get; set; }

@@ -57,8 +57,19 @@ namespace shopadminService.Controllers
                 result.UpdateTime = DateTime.Now;
                 _userservice.updateLoginInfo(result);
                 return new ResultObject() { Flag = 1, Message = "验证成功!", Result = new
-                { appType=result.AppType, businessId=result.BusinessId, avatar=result.Avatar ,phone=result.Phone,email=result.Email,
-                    userNo =result.UserNo, userName =result.UserName,realName=result.RealName , isSuperAdmin=result.IsSuperAdmin} };
+                { 
+                    appType=result.AppType,
+                    businessId=result.BusinessId,
+                    businessNo= result.BusinessNo,
+                    businessName = result.BusinessName,
+                    avatar =result.Avatar ,
+                    phone=result.Phone,
+                    email=result.Email,
+                    userNo =result.UserNo,
+                    userName =result.UserName,
+                    realName=result.RealName ,
+                    isSuperAdmin=result.IsSuperAdmin
+                } };
 
             }
             else
@@ -89,9 +100,10 @@ namespace shopadminService.Controllers
             int? status = ((!jsonElement.TryGetProperty("status", out outjValue)) ? null : outjValue.GetInt32());
             string? searchKey = ((!jsonElement.TryGetProperty("searchKey", out outjValue)) ? null : outjValue.GetString());
 
-            int totalCount = 0;
-            var outobj = _userservice.getAdminaccountsPageList(pageIndex, pageSize, appType, searchKey, status, out totalCount);
-            return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj, Count = totalCount, Subsidiary = 1 };
+
+            var outobj = _userservice.getAdminaccountsPageList(pageIndex, pageSize, appType, searchKey, status);
+            return outobj;
+
         }
 
         /// <summary>

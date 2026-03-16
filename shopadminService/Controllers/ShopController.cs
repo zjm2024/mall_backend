@@ -5,31 +5,32 @@ using publicClassLibrary.Entitys;
 using publicClassLibrary.Models;
 using publicClassLibrary.TokenMange;
 using shopadminService.Interfaces;
+using shopadminService.Services;
 using System.Text.Json;
 
 namespace shopadminService.Controllers
 {
     [Anonymous]
     [ApiController]
-    [Route("shopadminApi/Seckill/[action]")]
+    [Route("shopadminApi/Shop/[action]")]
 
 
 
-    public class SeckillController : ControllerBase
+    public class ShopController : ControllerBase
     {
 
-        private readonly ILogger<SeckillController> _logger;
-        private readonly ISeckillService _seckillservice;
-        public SeckillController(ILogger<SeckillController> logger, ISeckillService seckillservice)
+        private readonly ILogger<ShopController> _logger;
+        private readonly IShopService _shopservice;
+        public ShopController(ILogger<ShopController> logger, IShopService shopservice)
         {
             _logger = logger;
-            _seckillservice = seckillservice;
+            _shopservice = shopservice;
         }
 
 
 
         [HttpPost]
-        public ResultObject getSeckillPageList([FromBody] JsonElement formData)
+        public ResultObject getShopsPageList([FromBody] JsonElement formData)
         {
             JsonElement jValue;
             string json = ((!formData.TryGetProperty("params", out jValue)) ? "" : jValue.GetRawText());
@@ -42,7 +43,7 @@ namespace shopadminService.Controllers
             int? status = ((!jsonElement.TryGetProperty("status", out outjValue)) ? null : outjValue.GetInt32());
             string? searchKey = ((!jsonElement.TryGetProperty("searchKey", out outjValue)) ? null : outjValue.GetString());
 
-            var outobj = _seckillservice.getSeckillPageList(pageIndex, pageSize, appType, searchKey, status);
+            var outobj = _shopservice.getShopsPageList(pageIndex, pageSize, appType, searchKey, status);
             return outobj;
 
         }
@@ -53,22 +54,22 @@ namespace shopadminService.Controllers
         /// 根据ID获取实体
         /// </summary>
         [HttpGet]
-        public ResultObject getSeckillById(int id)
+        public ResultObject getShopsById(int id)
         {
-            var outobj = _seckillservice.getSeckillById(id);
+            var outobj = _shopservice.getShopsById(id);
             return outobj;
         }
 
 
         /// <summary>
-        /// 更新秒杀
+        /// 更新商户
         /// </summary>
         [HttpPost]
-        public ResultObject updateSeckill([FromBody] JsonElement formData)
+        public ResultObject updateShops([FromBody] JsonElement formData)
         {
             JsonElement jValue;
             string json = ((!formData.TryGetProperty("data", out jValue)) ? "" : jValue.GetRawText());
-            var entity = JsonConvert.DeserializeObject(json, typeof(SeckillActivities));
+            var entity = JsonConvert.DeserializeObject(json, typeof(Business));
             if (entity == null)
             {
                 return new ResultObject() { Flag = 0, Message = "参数为空!", Result = null };
@@ -87,17 +88,22 @@ namespace shopadminService.Controllers
 
 
 
-            return _seckillservice.updateSeckill((SeckillActivities)entity, updateColums);
+            return _shopservice.updateShops((Business)entity, updateColums);
         }
 
 
-
+        /// <summary>
+        /// 删除商户
+        /// </summary>
         [HttpGet]
-        public ResultObject getTimeOptions(int appType)
+        public ResultObject deleteShops(int id)
         {
-            var outobj = _seckillservice.getTimeOptions(appType);
-            return outobj;
+            return _shopservice.deleteShops(id);
         }
+
+
     }
+
+
     
 }

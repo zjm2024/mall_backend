@@ -12,6 +12,8 @@ namespace shopadminService.Interfaces
 
         ResultObject getSeckillById(int id);
 
+        ResultObject getTimeOptions(int appType);
+
 
     }
 }

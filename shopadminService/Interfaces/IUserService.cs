@@ -15,7 +15,7 @@ namespace shopadminService.Interfaces
 
         bool resetUserPassword(string userNo,string iniPassword,int appType);
 
-        List<dynamic> getAdminaccountsPageList(int pageIndex, int pageSize, int appType, string? searchKey, int? status, out int totalCount);
+        ResultObject getAdminaccountsPageList(int pageIndex, int pageSize, int appType, string? searchKey, int? status);
 
         
 

@@ -16,11 +16,19 @@ namespace publicClassLibrary.Entitys
         [SugarColumn(IsPrimaryKey = true, IsIdentity = true)]
         public int BusinessId { get; set; }
 
+        
+
+        [SugarColumn(ColumnName = "BusinessNo", ColumnDescription = "商家编号", Length = 50)]
+        public string BusinessNo { get; set; }
+
         [SugarColumn(ColumnName = "BusinessName", ColumnDescription = "商家名称" ,Length = 255)]
         public string BusinessName { get; set; }
 
         [SugarColumn(ColumnName = "AppType", ColumnDescription = "应用类型")]
         public int AppType { get; set; }
+
+        [SugarColumn(ColumnName = "Status", ColumnDescription = "状态:0-审批，1-上线，2-下线，3-删除")]
+        public int Status { get; set; }
 
 
         [SugarColumn(ColumnName = "CreateTime", ColumnDescription = "创建时间")]

@@ -13,9 +13,11 @@ namespace shopadminService.Services
     public class UserService : BaseService, IUserService
     {
         private readonly SqlSugarHelper _dbHelper;
-        public UserService(SqlSugarHelper dbHelper) : base(dbHelper)
+        private readonly ISqlSugarClient _db;
+        public UserService(SqlSugarHelper dbHelper, ISqlSugarClient db) : base(dbHelper)
         {
             _dbHelper = dbHelper;
+            _db = db;
         }
 
         public Adminaccounts? postLogin(string userNo, string password, int appType)
@@ -34,15 +36,15 @@ namespace shopadminService.Services
 
         }
 
-        public bool changeUserPassword(string userNo, string oldPassword, string newPassword ,int appType)
+        public bool changeUserPassword(string userNo, string oldPassword, string newPassword, int appType)
         {
             //修改用户密码
             var result = GetList<Adminaccounts>(it => it.AppType == appType && it.UserNo == userNo && it.Password == oldPassword);
             if (result.Count > 0)
             {
                 Adminaccounts entity = result[0];
-                entity.Password=newPassword; 
-               return Update<Adminaccounts>(entity, it => new { it.Password });
+                entity.Password = newPassword;
+                return Update<Adminaccounts>(entity, it => new { it.Password });
             }
             else
                 return false;
@@ -66,32 +68,34 @@ namespace shopadminService.Services
         }
 
 
-        public List<dynamic> getAdminaccountsPageList(int pageIndex, int pageSize, int appType, string? searchKey, int? status, out int totalCount)
+        public ResultObject getAdminaccountsPageList(int pageIndex, int pageSize, int appType, string? searchKey, int? status)
         {
-            //加排序
-            List<OrderByModel> orderbyList = OrderByModel.Create(
+            try
+            {
+                //加排序
+                List<OrderByModel> orderbyList = OrderByModel.Create(
                new OrderByModel() { FieldName = "CreateTime", OrderByType = OrderByType.Desc });
 
-            //加查询条件
+                //加查询条件
 
 
 
-            var conModels = new List<IConditionalModel>();
+                var conModels = new List<IConditionalModel>();
 
 
-            conModels.Add(new ConditionalModel { FieldName = "AppType", ConditionalType = ConditionalType.Equal, FieldValue = appType.toString() });
+                conModels.Add(new ConditionalModel { FieldName = "AppType", ConditionalType = ConditionalType.Equal, FieldValue = appType.toString() });
 
 
-            if (status != null)
-            {
-                conModels.add(new ConditionalModel { FieldName = "Status", ConditionalType = ConditionalType.Equal, FieldValue = status.toString() });
-            }
-
-            if (searchKey != null)
-            {
-                conModels.Add(new ConditionalCollections()
+                if (status != null)
                 {
-                    ConditionalList = new List<KeyValuePair<WhereType, SqlSugar.ConditionalModel>>()
+                    conModels.add(new ConditionalModel { FieldName = "Status", ConditionalType = ConditionalType.Equal, FieldValue = status.toString() });
+                }
+
+                if (searchKey != null)
+                {
+                    conModels.Add(new ConditionalCollections()
+                    {
+                        ConditionalList = new List<KeyValuePair<WhereType, SqlSugar.ConditionalModel>>()
                     {
 
                        new KeyValuePair<WhereType, ConditionalModel>(
@@ -107,23 +111,37 @@ namespace shopadminService.Services
                        WhereType.Or,
                        new ConditionalModel() {FieldName="Phone",ConditionalType=ConditionalType.Like,FieldValue=searchKey.toString()})
                     }
-                });
+                    });
+                }
+                var totalCount = 0;
+
+                var outobj = GetPageList<Adminaccounts, dynamic>(pageIndex, pageSize, out totalCount, conModels, it => new
+                {
+                    adminId = it.AdminId,
+                    isSuperAdmin = it.IsSuperAdmin,
+                    businessId = it.BusinessId,
+                    businessNo = it.BusinessNo,
+                    businessName = it.BusinessName,
+                    userNo = it.UserNo,
+                    userName = it.UserName,
+                    realName = it.RealName,
+                    avatar = it.Avatar,
+                    phone = it.Phone,
+                    email = it.Email,
+                    appType = it.AppType,
+                    status = it.Status,
+                    createTime = SqlFunc.ToString(it.CreateTime)
+                }, orderbyList).ToList();
+
+
+
+                return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj, Count = totalCount };
+
             }
-
-
-            var list = GetPageList<Adminaccounts, dynamic>(pageIndex, pageSize, out totalCount, conModels, it => new {
-                adminId =it.AdminId,
-                isSuperAdmin =it.IsSuperAdmin,
-                businessId = it.BusinessId,
-                userNo = it.UserNo,
-                userName =it.UserName,
-                realName =it.RealName,
-                avatar =it.Avatar,
-                appType =it.AppType,
-                status=it.Status,
-                createTime =SqlFunc.ToString(it.CreateTime) 
-            }, orderbyList);
-            return list;
+            catch (Exception ex)
+            {
+                return new ResultObject() { Flag = 0, Message = "获取失败!", Result = ex.ToString() };
+            }
         }
 
 
@@ -151,24 +169,38 @@ namespace shopadminService.Services
                 }
             }
 
-            if (adminId == 0)
+            _db.Ado.BeginTran();
+            try
             {
-                int id = Add<Adminaccounts>(cVO);
-                cVO.AdminId = id;
-                if (id > 0)
-                    return new ResultObject() { Flag = 1, Message = "添加成功!", Result = cVO };
-                else
-                    return new ResultObject() { Flag = 0, Message = "添加失败!", Result = null };
+                dynamic resultobj;
 
+                if (adminId == 0)
+                {
+                    int id = Add<Adminaccounts>(cVO);
+                    cVO.AdminId = id;
+                    if (id > 0)
+                        resultobj= new ResultObject() { Flag = 1, Message = "添加成功!", Result = cVO };
+                    else
+                        resultobj= new ResultObject() { Flag = 0, Message = "添加失败!", Result = null };
+
+                }
+                else
+                {
+
+                    bool isSuccess = Update<Adminaccounts>(cVO, updateColums);
+                    if (isSuccess)
+                        resultobj= new ResultObject() { Flag = 1, Message = "更新成功!", Result = cVO };
+                    else
+                        resultobj= new ResultObject() { Flag = 0, Message = "更新失败!", Result = null };
+                }
+                _db.Ado.CommitTran();
+                return resultobj;
             }
-            else
+            catch (Exception ex)
             {
-
-                bool isSuccess = Update<Adminaccounts>(cVO, updateColums);
-                if (isSuccess)
-                    return new ResultObject() { Flag = 1, Message = "更新成功!", Result = cVO };
-                else
-                    return new ResultObject() { Flag = 0, Message = "更新失败!", Result = null };
+                // 如果有任何异常，回滚事务
+                _db.Ado.RollbackTran();
+                return new ResultObject() { Flag = 0, Message = "操作失败!", Result = null };
             }
         }
 
@@ -179,36 +211,34 @@ namespace shopadminService.Services
         /// <param name="id">用户id</param>
         public ResultObject deleteUsers(int id)
         {
+            _db.Ado.BeginTran();
             try
             {
-
+                dynamic resultobj;
                 bool isSuccess = Delete<Adminaccounts>(id);
                 if (isSuccess)
                 {
-                    return new ResultObject() { Flag = 1, Message = "删除成功!", Result = id };
+                    resultobj = new ResultObject() { Flag = 1, Message = "删除成功!", Result = id };
                 }
                 else
                 {
-                    return new ResultObject() { Flag = 0, Message = "删除失败!", Result = null };
+                    resultobj = new ResultObject() { Flag = 0, Message = "删除失败!", Result = null };
                 }
 
-
+                _db.Ado.CommitTran();
+                return resultobj;
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return new ResultObject() { Flag = 0, Message = "删除失败!"+ex.toString(), Result = null };
+                // 如果有任何异常，回滚事务
+                _db.Ado.RollbackTran();
+                return new ResultObject() { Flag = 0, Message = "删除失败!" + ex.toString(), Result = null };
             }
+
+
         }
-    
 
-
-
-
-
-
-
-
-}
+    }
 }
 

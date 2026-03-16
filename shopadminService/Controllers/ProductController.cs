@@ -48,9 +48,9 @@ namespace shopadminService.Controllers
             string? categoryIds = ((!jsonElement.TryGetProperty("categoryIds", out outjValue)) ? null : outjValue.ToString());
 
 
-            int totalCount = 0;
-            var outobj = _productservice.getProductsPageList(pageIndex, pageSize, appType, businessId, productName, productStatus, categoryIds, out totalCount);
-            return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj, Count = totalCount, Subsidiary = 1 };
+          
+            var outobj = _productservice.getProductsPageList(pageIndex, pageSize, appType, businessId, productName, productStatus, categoryIds);
+            return outobj;
         }
 
 

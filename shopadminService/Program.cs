@@ -1,6 +1,8 @@
 using Newtonsoft.Json.Serialization;
 using publicClassLibrary.Configs;
 using publicClassLibrary.Helpers;
+using publicClassLibrary.Interfaces;
+using publicClassLibrary.Models;
 using shopadminService.Interfaces;
 using shopadminService.Services;
 using System.ComponentModel;
@@ -10,20 +12,30 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Services.AddHttpContextAccessor(); // 注册 IHttpContextAccessor
+
 builder.Services.AddSharedSwagger(); // 1.使用Swagger共享配置
 
 builder.Services.AddSharedDb(builder);    // 2.使用SqlSugar共享配置
 
 builder.Services.AddSharedCors(); //3.配置跨域请求
 
-builder.Services.AddHttpContextAccessor(); // 注册 IHttpContextAccessor
+builder.Services.AddSharedUpLoad(builder); //4.配置上传文件
 
-// 4.注册服务
+
+
+
+
+
+
+// 注册服务
 builder.Services.AddScoped<IUserService, UserService>(); //用户服务
 builder.Services.AddScoped<ICategoryService, CategoryService>(); //类型服务
 builder.Services.AddScoped<IProductService, ProductService>(); //商品服务
 builder.Services.AddScoped<IOrderService, OrderService>(); //订单服务
 builder.Services.AddScoped<ISeckillService, SeckillService>(); //秒杀服务
+builder.Services.AddScoped<IShopService, ShopService>(); //店铺服务
+
 
 builder.Services.AddScoped<IUpLoadFileService, UpLoadFileService>(); //上传文件服务
 
@@ -46,6 +58,7 @@ var app = builder.Build();
 app.UseSharedSwagger(app.Environment); // 配置Swagger HTTP请求管道
 
 app.UseSharedCors();  // 配置 跨域请求
+
 
 app.UseDefaultFiles();
 
