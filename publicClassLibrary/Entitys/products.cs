@@ -39,10 +39,10 @@ namespace publicClassLibrary.Entitys
         public string ProductName { get; set; }
 
         [SugarColumn(ColumnName = "ProductImage", ColumnDescription = "商品主图URL", Length = 512)]
-        public string ProductImage { get; set; }
+        public string ProductImage { get; set; } = string.Empty;
 
         [SugarColumn(ColumnName = "ProductImages", ColumnDescription = "商品图片集(JSON格式)", Length = int.MaxValue)]
-        public string ProductImages { get; set; }
+        public string ProductImages { get; set; } = string.Empty;
 
         [SugarColumn(ColumnName = "ProductContent", ColumnDescription = "商品详情(HTML)", Length = int.MaxValue)]
         public string ProductContent { get; set; }

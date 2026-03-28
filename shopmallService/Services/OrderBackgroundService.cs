@@ -1,7 +1,10 @@
 ﻿
 using Microsoft.AspNetCore.SignalR;
+using publicClassLibrary.Entitys;
+using publicClassLibrary.Interfaces;
 using shopmallService.Hubs;
 using shopmallService.Interfaces;
+using SqlSugar;
 
 namespace shopmallService.Services
 {
@@ -30,13 +33,8 @@ namespace shopmallService.Services
             {
                 try
                 {
-        
-
                     //从队列中拿出订单
                     var order = await _redisQueueService.ConsumeOrderAsync();
-
-
-
                     if (order != null)
                     {
                         _logger.LogInformation($"开始处理订单: {order}");
@@ -44,9 +42,48 @@ namespace shopmallService.Services
                         // 在作用域中解析Scoped服务
                         using var scope = _scopeFactory.CreateScope();
                         var orderService = scope.ServiceProvider.GetRequiredService<IOrderService>();
+
+                        string key = order.PersonalId + ":order";
+
+                        //判断库存是否足够
+                        bool isStock = true;
+                        string message = "";
+                        foreach (OrdersSubs sub in order.OrdersSubs)
+                        {
+                            foreach (OrderItems item in sub.OrderItems)
+                            {
+                                var specId = item.SpecId;
+                                var sepcobj= orderService.getProductSpecsById(specId);
+                                if (sepcobj.Stock< item.Quantity)
+                                {
+                                    isStock = false;
+                                    message = item.ProductName +":"+ item.Spec1Value+item.Spec2Value+ item.Spec3Value+ ",库存不足";
+                                    break;
+                                }
+                            }
+                        }
+
+                        //库存不足
+                        if (isStock==false)
+                        {
+                            WebSocketMiddleware.SendMessageToUser(key, new
+                            {
+                                type = "ORDER_CHECKED",
+                                data = new
+                                {
+                                    orderId = order.OrderId,
+                                    orderNo = order.OrderNo.ToString(),
+                                    personalId = order.PersonalId.ToString(),
+                                    flag = 0,
+                                    message = message
+
+                                }
+                            });
+                            continue;
+                        }
+
                         //保存订单
                         var result = orderService.addOrders(order);
-                        string key = order.PersonalId + ":order";
                         WebSocketMiddleware.SendMessageToUser(key, new
                         {
                             type = "ORDER_COMPLETED",

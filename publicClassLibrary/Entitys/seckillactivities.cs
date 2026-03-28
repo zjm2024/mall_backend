@@ -55,14 +55,23 @@ namespace publicClassLibrary.Entitys
         [SugarColumn(ColumnName = "EndTime", ColumnDescription = "结束时间")]
         public DateTime EndTime { get; set; }
 
-        [SugarColumn(ColumnName = "Status", ColumnDescription = "状态:1-进行中 2-未开始 3-已结束 4-已关闭")]
-        public int Status { get; set; }
+        [SugarColumn(ColumnName = "Status", ColumnDescription = "状态:1-进行中  2-已结束 3-已关闭")]
+        public int? Status { get; set; } = null;
 
         [SugarColumn(ColumnName = "PerPersonLimit", ColumnDescription = "每人限购数量")]
         public int PerPersonLimit { get; set; }
 
         [SugarColumn(ColumnName = "AutoExtend", ColumnDescription = "售罄自动延期:1-是 0-否")]
         public int AutoExtend { get; set; }
+
+        [SugarColumn(ColumnName = "Checked", ColumnDescription = "审核否:0 未审核 1 已审核")]
+        public int Checked { get; set; }
+
+        [SugarColumn(ColumnName = "CheckTime", ColumnDescription = "审核日期")]
+        public DateTime? CheckTime { get; set; } = null;
+
+
+
 
         [SugarColumn(ColumnName = "CreateTime", ColumnDescription = "创建时间")]
         public DateTime CreateTime { get; set; } = DateTime.Now;

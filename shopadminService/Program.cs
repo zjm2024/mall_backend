@@ -3,8 +3,10 @@ using publicClassLibrary.Configs;
 using publicClassLibrary.Helpers;
 using publicClassLibrary.Interfaces;
 using publicClassLibrary.Models;
+using publicClassLibrary.Services;
 using shopadminService.Interfaces;
 using shopadminService.Services;
+using StackExchange.Redis;
 using System.ComponentModel;
 
 
@@ -26,6 +28,14 @@ builder.Services.AddSharedUpLoad(builder); //4.配置上传文件
 
 
 
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+    ConnectionMultiplexer.Connect("localhost:6379,abortConnect=false")
+);
+
+
+// 注册Redis消息队列服务
+builder.Services.AddSingleton<IRedisQueueService, RedisQueueService>();
+
 
 
 // 注册服务
@@ -35,9 +45,12 @@ builder.Services.AddScoped<IProductService, ProductService>(); //商品服务
 builder.Services.AddScoped<IOrderService, OrderService>(); //订单服务
 builder.Services.AddScoped<ISeckillService, SeckillService>(); //秒杀服务
 builder.Services.AddScoped<IShopService, ShopService>(); //店铺服务
-
+builder.Services.AddScoped<IDataDictService, DataDictService>(); //数据字典服务
 
 builder.Services.AddScoped<IUpLoadFileService, UpLoadFileService>(); //上传文件服务
+
+
+
 
 
 // 注册自定义转换器

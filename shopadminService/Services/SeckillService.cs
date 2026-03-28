@@ -1,11 +1,12 @@
 ﻿using Dm.util;
 using publicClassLibrary.Entitys;
 using publicClassLibrary.Helpers;
+using publicClassLibrary.Interfaces;
 using publicClassLibrary.Models;
 using publicClassLibrary.Services;
 using shopadminService.Interfaces;
 using SqlSugar;
-using System.Text;
+
 
 namespace shopadminService.Services
 {
@@ -13,13 +14,15 @@ namespace shopadminService.Services
     {
         private readonly SqlSugarHelper _dbHelper;
         private readonly ISqlSugarClient _db;
-        public SeckillService(SqlSugarHelper dbHelper, ISqlSugarClient db) : base(dbHelper)
+        private readonly IRedisQueueService _redisQueueService;
+        public SeckillService(SqlSugarHelper dbHelper, ISqlSugarClient db, IRedisQueueService redisQueueService) : base(dbHelper)
         {
             _dbHelper = dbHelper;
             _db = db;
+            _redisQueueService = redisQueueService;
         }
 
-        public ResultObject getSeckillPageList(int pageIndex, int pageSize, int appType, string? searchKey, int? status)
+        public ResultObject getSeckillPageList(int pageIndex, int pageSize, int appType,int businessId, string? searchKey, int? status)
         {
             try
             {
@@ -30,6 +33,8 @@ namespace shopadminService.Services
                 //加查询条件
                 var conModels = new List<IConditionalModel>();
                 conModels.Add(new ConditionalModel { FieldName = "s.AppType", ConditionalType = ConditionalType.Equal, FieldValue = appType.toString() });
+                conModels.add(new ConditionalModel { FieldName = "s.BusinessId", ConditionalType = ConditionalType.Equal, FieldValue = businessId.toString() });
+
 
                 if (status != null)
                 {
@@ -83,6 +88,8 @@ namespace shopadminService.Services
                        EndTime = s.EndTime,
                        Status = s.Status,
                        PerPersonLimit = s.PerPersonLimit,
+                       Checked=s.Checked,
+                       CheckTime=s.CheckTime,
                        AutoExtend = s.AutoExtend,
                        CreateTime = s.CreateTime,
                        UpdateTime = s.UpdateTime,
@@ -162,6 +169,46 @@ namespace shopadminService.Services
             }
         }
 
+
+        public async Task<ResultObject> checkSeckill(SeckillActivities sV0, string[] updateColums = null)
+        {
+            //判断秒杀校验
+            var seckillId = sV0.SeckillId;
+            _db.Ado.BeginTran();
+            try
+            {
+                dynamic resultobj;
+
+                sV0.UpdateTime = DateTime.Now;
+
+                Array.Resize(ref updateColums, updateColums.Length + 1);
+                updateColums[updateColums.Length - 1] = "updateTime";
+
+                bool isSuccess = Update<SeckillActivities>(sV0, updateColums);
+
+      
+                if (isSuccess)
+                {
+                    // 同步到Redis
+                    var seckill = GetById<SeckillActivities>(seckillId);
+                    await _redisQueueService.SetSeckillActivityAsync(seckill);
+                    resultobj = new ResultObject() { Flag = 1, Message = "审核成功!", Result = sV0 };
+                }
+               
+                else
+                    resultobj = new ResultObject() { Flag = 0, Message = "审核失败!", Result = null };
+
+                _db.Ado.CommitTran();
+
+                return resultobj;
+            }
+            catch (Exception ex)
+            {
+                // 如果有任何异常，回滚事务
+                _db.Ado.RollbackTran();
+                return new ResultObject() { Flag = 0, Message = "操作失败!", Result = null };
+            }
+        }
         public ResultObject getSeckillById(int id)
         {
             try

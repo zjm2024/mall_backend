@@ -270,9 +270,6 @@ namespace shopmallService.Services
 
 
 
-
-
-
         public ResultObject getOrdersById(int id, int appType)
         {
             try
@@ -315,5 +312,11 @@ namespace shopmallService.Services
         }
 
 
+
+        public ProductSpecs getProductSpecsById(int id)
+        {
+            var objout = GetById<ProductSpecs>(id);
+            return objout;
+        }
     }
 }

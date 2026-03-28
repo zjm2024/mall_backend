@@ -11,8 +11,10 @@ namespace shopmallService.Interfaces
 
         ResultObject getInfoList(int businessId, int appType);
 
-        ResultObject getProductsPageList(int pageIndex, int pageSize, string treePath, int businessId ,int appType, out int totalCount);
-
+        ResultObject getProductsPageList(int pageIndex, int pageSize, string treePath ,string? searchkey,int appType);
+       
+        ResultObject getHotProductsPageList(int pageIndex, int pageSize, string? searchkey, int appType);
+        
         ResultObject getProductsById(int productId);
 
         ResultObject updateCategories(Categories cV0);
@@ -21,8 +23,9 @@ namespace shopmallService.Interfaces
 
         ResultObject getSeckillTimersList(int appType);
 
-        ResultObject getCurDateSeckillList(string timer,int appType);
+        ResultObject getCurDateTimeSeckillList(int pageIndex, int pageSize, string timer,int appType);
 
+   
         /*
         List<products> getProductsAll();
 

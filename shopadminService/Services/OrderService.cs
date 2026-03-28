@@ -5,6 +5,7 @@ using publicClassLibrary.Models;
 using publicClassLibrary.Services;
 using shopadminService.Interfaces;
 using SqlSugar;
+using System.Security.AccessControl;
 using System.Text;
 
 namespace shopadminService.Services
@@ -19,32 +20,34 @@ namespace shopadminService.Services
             _db = db;
         }
 
-        public List<Orders>  getOrdersPageList(int pageIndex, int pageSize, int appType, string? searchKey, int? orderStatus, out int totalCount)
+        public ResultObject getOrdersPageList(int pageIndex, int pageSize, int appType, string? searchKey, int? orderStatus)
         {
-            //加排序
-            List<OrderByModel> orderbyList = OrderByModel.Create(
+            try
+            {
+                //加排序
+                List<OrderByModel> orderbyList = OrderByModel.Create(
                new OrderByModel() { FieldName = "CreateTime", OrderByType = OrderByType.Desc });
 
-            //加查询条件
+                //加查询条件
 
 
 
-            var conModels = new List<IConditionalModel>();
+                var conModels = new List<IConditionalModel>();
 
 
-            conModels.Add(new ConditionalModel { FieldName = "AppType", ConditionalType = ConditionalType.Equal, FieldValue = appType.toString() });
+                conModels.Add(new ConditionalModel { FieldName = "AppType", ConditionalType = ConditionalType.Equal, FieldValue = appType.toString() });
 
 
-            if (orderStatus != null)
-            {
-                conModels.add(new ConditionalModel { FieldName = "OrderStatus", ConditionalType = ConditionalType.Equal, FieldValue = orderStatus.toString() });
-            }
-
-            if (searchKey != null)
-            {
-                conModels.Add(new ConditionalCollections()
+                if (orderStatus != null)
                 {
-                    ConditionalList = new List<KeyValuePair<WhereType, SqlSugar.ConditionalModel>>()
+                    conModels.add(new ConditionalModel { FieldName = "OrderStatus", ConditionalType = ConditionalType.Equal, FieldValue = orderStatus.toString() });
+                }
+
+                if (searchKey != null)
+                {
+                    conModels.Add(new ConditionalCollections()
+                    {
+                        ConditionalList = new List<KeyValuePair<WhereType, SqlSugar.ConditionalModel>>()
                     {
 
                        new KeyValuePair<WhereType, ConditionalModel>(
@@ -67,12 +70,20 @@ namespace shopadminService.Services
 
 
                     }
-                });
+                    });
+                }
+
+                var totalCount = 0;
+                var outobj = GetPageList<Orders>(pageIndex, pageSize, out totalCount, conModels, orderbyList);
+                return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj, Count = totalCount };
+
+            }
+            catch (Exception ex)
+            {
+                return new ResultObject() { Flag = 0, Message = "获取失败!", Result = ex.ToString() };
             }
 
-
-            var list = GetPageList<Orders>(pageIndex, pageSize, out totalCount, conModels, orderbyList);
-            return list;
+  
         }
 
         public ResultObject updateOrders(Orders oV0, string[] updateColums = null)
@@ -115,10 +126,179 @@ namespace shopadminService.Services
             }
         }
 
-        public Orders getOrdersById(int id)
+        public ResultObject getOrdersById(int id)
         {
-            var outobj = GetById<Orders>(id);
-            return outobj;
+            try
+            {
+                var outobj = GetById<Orders>(id);
+
+                return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj };
+            }
+            catch (Exception ex)
+            {
+                return new ResultObject() { Flag = 0, Message = "获取失败!", Result = ex.ToString() };
+            }
+        }
+
+        public ResultObject getOrdersSubsPageList(int pageIndex, int pageSize, int appType, string? searchKey, int? orderStatus)
+        {
+            try
+            {
+                //加排序
+                List<OrderByModel> orderbyList = OrderByModel.Create(
+               new OrderByModel() { FieldName = "CreateTime", OrderByType = OrderByType.Desc });
+
+                //加查询条件
+
+
+
+                var conModels = new List<IConditionalModel>();
+
+
+                conModels.Add(new ConditionalModel { FieldName = "AppType", ConditionalType = ConditionalType.Equal, FieldValue = appType.toString() });
+
+
+                if (orderStatus != null)
+                {
+                    conModels.add(new ConditionalModel { FieldName = "OrderStatus", ConditionalType = ConditionalType.Equal, FieldValue = orderStatus.toString() });
+                }
+
+                if (searchKey != null)
+                {
+                    conModels.Add(new ConditionalCollections()
+                    {
+                        ConditionalList = new List<KeyValuePair<WhereType, SqlSugar.ConditionalModel>>()
+                    {
+
+                       new KeyValuePair<WhereType, ConditionalModel>(
+                       WhereType.And,
+                       new ConditionalModel(){FieldName ="SubOrderNo",ConditionalType=ConditionalType.Like,FieldValue=searchKey.toString()}),
+
+                       new KeyValuePair<WhereType, ConditionalModel> (
+                       WhereType.Or,
+                       new ConditionalModel() {FieldName ="ShippingNo",ConditionalType=ConditionalType.Like,FieldValue=searchKey.toString()}),
+
+
+                       new KeyValuePair<WhereType, ConditionalModel> (
+                       WhereType.Or,
+                       new ConditionalModel() {FieldName="ReceiverName",ConditionalType=ConditionalType.Like,FieldValue=searchKey.toString()}),
+
+                       new KeyValuePair<WhereType, ConditionalModel> (
+                       WhereType.Or,
+                       new ConditionalModel() {FieldName="ReceiverPhone",ConditionalType=ConditionalType.Like,FieldValue=searchKey.toString()})
+
+
+
+                    }
+                    });
+                }
+
+
+
+                var totalCount = 0;
+                var outobj = GetPageList<OrdersSubs>(pageIndex, pageSize, out totalCount, conModels, orderbyList);
+                return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj, Count = totalCount };
+
+            }
+            catch (Exception ex)
+            {
+                return new ResultObject() { Flag = 0, Message = "获取失败!", Result = ex.ToString() };
+            }
+
+
+
+
+     
+        }
+
+        public ResultObject getOrdersSubsById(int id)
+        {
+            try
+            {
+
+                var outobj = _db.Queryable<OrdersSubs>()
+
+                .LeftJoin<Business>((s, b) => s.BusinessId == b.BusinessId)
+                .Where(s => s.SubOrderId == id)
+                .Select((s, b) => new OrdersSubs
+                {
+                    SubOrderId = s.SubOrderId,
+                    SubOrderNo = s.SubOrderNo,
+                    OrderId = s.OrderId,
+                    OrderNo = s.OrderNo,
+                    AppType = s.AppType,
+                    PersonalId = s.PersonalId,
+                    BusinessId = s.BusinessId,
+                    OrderStatus = s.OrderStatus,
+                    SubTotalCount = s.SubTotalCount,
+                    SubTotalAmount = s.SubTotalAmount,
+                    SubShippingFee = s.SubShippingFee,
+                    SubDiscountAmount = s.SubDiscountAmount,
+                    SubPayAmount = s.SubPayAmount,
+                    ShippingNo = s.ShippingNo,
+                    ShippingTime = s.ShippingTime,
+                    CompleteTime = s.CompleteTime,
+                    ReceiverName = s.ReceiverName,
+                    ReceiverPhone = s.ReceiverPhone,
+                    ReceiverAddress = s.ReceiverAddress,
+                    CreateTime = s.CreateTime,
+                    UpdateTime = s.UpdateTime,
+
+                    BusinessName = b.BusinessName
+
+                })
+                .ToList();
+
+
+
+                _db.ThenMapper(outobj, item =>
+                {
+                    item.OrderItems = _db.Queryable<OrderItems>()
+                     .Select((o) => new OrderItems
+                     {
+                         OrderItemId = o.OrderItemId,
+                         OrderId = o.OrderItemId,
+                         OrderNo = o.OrderNo,
+                         SubOrderId = o.SubOrderId,
+                         SubOrderNo = o.SubOrderNo,
+                         AppType = o.AppType,
+                         PersonalId = o.PersonalId,
+                         BusinessId = o.BusinessId,
+                         ProductId = o.ProductId,
+                         SpecId = o.SpecId,
+                         ProductName = o.ProductName,
+                         Spec1Name = o.Spec1Name,
+                         Spec1Value = o.Spec1Value,
+                         Spec2Name = o.Spec2Name,
+                         Spec2Value = o.Spec2Value,
+                         Spec3Name = o.Spec3Name,
+                         Spec3Value = o.Spec3Value,
+                         Quantity = o.Quantity,
+                         OriginalPrice = o.OriginalPrice,
+                         UnitPrice = o.UnitPrice,
+                         TotalAmount = o.TotalAmount,
+                         PayAmount = o.PayAmount,
+                         ActivityType = o.ActivityType,
+                         ActivityId = o.ActivityId,
+                         RefundStatus = o.RefundStatus,
+                         RefundAmount = o.RefundAmount,
+                         CreateTime = o.CreateTime,
+                         UpdateTime = o.UpdateTime,
+
+
+                     })
+                     .SetContext(o => o.SubOrderId, () => item.SubOrderId, item).ToList();
+                });
+
+
+
+                return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj[0] };
+            }
+            catch (Exception ex)
+            {
+                return new ResultObject() { Flag = 0, Message = "获取失败!", Result = ex.ToString() };
+            }
+
         }
 
     }

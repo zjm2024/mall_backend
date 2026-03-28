@@ -3,6 +3,7 @@ using publicClassLibrary.Configs;
 using publicClassLibrary.Interfaces;
 using publicClassLibrary.Services;
 using publicClassLibrary.TokenMange;
+using shopmallService.Hubs;
 using shopmallService.Interfaces;
 using shopmallService.Services;
 using StackExchange.Redis;
@@ -19,13 +20,6 @@ builder.Services.AddSharedCors(); //3.配置跨域请求
 
 builder.Services.AddHttpContextAccessor();
 
-// 4.注册服务
-builder.Services.AddScoped<ITokenService, TokenService>(); //Token服务
-builder.Services.AddScoped<IProductService, ProductService>(); //商品服务
-builder.Services.AddScoped<ICartService, CartService>(); //购物车服务
-builder.Services.AddScoped<IOrderService, OrderService>(); //订单服务
-
-
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     ConnectionMultiplexer.Connect("localhost:6379,abortConnect=false")
 );
@@ -34,8 +28,28 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 // 注册Redis消息队列服务
 builder.Services.AddSingleton<IRedisQueueService, RedisQueueService>();
 
+// 4.注册服务
+builder.Services.AddScoped<ITokenService, TokenService>(); //Token服务
+builder.Services.AddScoped<IProductService, ProductService>(); //商品服务
+builder.Services.AddScoped<ICartService, CartService>(); //购物车服务
+builder.Services.AddScoped<IOrderService, OrderService>(); //订单服务
+builder.Services.AddScoped<ISeckillService, SeckillService>(); //秒杀服务
+builder.Services.AddScoped<IDataDictService, DataDictService>(); //数据字典服务
+
+
+
 // 注册后台服务处理订单消息
 builder.Services.AddHostedService<OrderBackgroundService>();
+
+// 注册后台服务处理秒杀消息
+builder.Services.AddHostedService<SeckillBackgroundService>();
+// 注册后台定时发送消息
+builder.Services.AddHostedService<QuartzHostedService>();
+
+builder.Services.AddSingleton<ChatJob>();
+
+
+builder.Services.AddSingleton<ChatJobFactory>();
 
 
 // 添加SignalR服务

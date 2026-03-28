@@ -117,5 +117,25 @@ namespace shopmallService.Services
                 }
             }
         }
+
+
+
+        public static async void SendMessageToAll(object message)
+        {
+            var json = JsonSerializer.Serialize(message);
+            var buffer = Encoding.UTF8.GetBytes(json);
+            var segment = new ArraySegment<byte>(buffer);
+            foreach (var client in _userConnections)
+            {
+                if (client.Value.State == WebSocketState.Open)
+                {
+                    await client.Value.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
+                }
+
+            }
+
+
+        }
     }
+
 }

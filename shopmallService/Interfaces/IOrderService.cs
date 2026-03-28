@@ -20,5 +20,7 @@ namespace shopmallService.Interfaces
 
         ResultObject updateOrders(Orders oV0, string[] updateColums = null);
         ResultObject getOrdersById(int id, int appType);
+
+        ProductSpecs getProductSpecsById(int id);
     }
 }

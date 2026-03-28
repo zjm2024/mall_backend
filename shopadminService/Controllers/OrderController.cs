@@ -42,9 +42,8 @@ namespace shopadminService.Controllers
             int? orderStatus = ((!jsonElement.TryGetProperty("orderStatus", out outjValue)) ? null : outjValue.GetInt32());
             string? searchKey = ((!jsonElement.TryGetProperty("searchKey", out outjValue)) ? null : outjValue.GetString());
 
-            int totalCount = 0;
-            var outobj = _orderservice.getOrdersPageList(pageIndex, pageSize, appType, searchKey, orderStatus, out totalCount);
-            return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj, Count = totalCount, Subsidiary = 1 };
+            var outobj = _orderservice.getOrdersPageList(pageIndex, pageSize, appType, searchKey, orderStatus);
+            return outobj;
 
         }
 
@@ -57,7 +56,7 @@ namespace shopadminService.Controllers
         public ResultObject getOrdersById(int id)
         {
             var outobj = _orderservice.getOrdersById(id);
-            return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj, Count = 1, Subsidiary = 1 };
+            return outobj;
         }
 
 
@@ -91,6 +90,36 @@ namespace shopadminService.Controllers
             return _orderservice.updateOrders((Orders)entity, updateColums);
         }
 
+
+
+        /// <summary>
+        /// 查询子订单
+        /// </summary>
+        [HttpPost]
+        public ResultObject getOrdersSubsPageList([FromBody] JsonElement formData)
+        {
+            JsonElement jValue;
+            string json = ((!formData.TryGetProperty("params", out jValue)) ? "" : jValue.GetRawText());
+            JsonElement jsonElement = System.Text.Json.JsonSerializer.Deserialize<JsonElement>(json);
+
+            int pageIndex = Convert.ToInt32(jsonElement.GetProperty("pageIndex").ToString());
+            int pageSize = Convert.ToInt32(jsonElement.GetProperty("pageSize").ToString());
+            int appType = Convert.ToInt32(jsonElement.GetProperty("appType").ToString());
+            JsonElement outjValue;
+            int? orderStatus = ((!jsonElement.TryGetProperty("orderStatus", out outjValue)) ? null : outjValue.GetInt32());
+            string? searchKey = ((!jsonElement.TryGetProperty("searchKey", out outjValue)) ? null : outjValue.GetString());
+
+  
+            var outobj = _orderservice.getOrdersSubsPageList(pageIndex, pageSize, appType, searchKey, orderStatus);
+            return outobj;
+        }
+
+        [HttpGet]
+        public ResultObject getOrdersSubsById(int id)
+        {
+            var outobj = _orderservice.getOrdersSubsById(id);
+            return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj, Count = 1, Subsidiary = 1 };
+        }
 
     }
 }

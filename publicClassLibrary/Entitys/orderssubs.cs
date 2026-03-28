@@ -37,7 +37,7 @@ namespace publicClassLibrary.Entitys
         [SugarColumn(ColumnName = "BusinessId", ColumnDescription = "商家ID")]
         public int BusinessId { get; set; }
 
-        
+
         [SugarColumn(ColumnName = "SubTotalCount", ColumnDescription = "子订单总商品数")]
         public int SubTotalCount { get; set; }
 
@@ -53,39 +53,43 @@ namespace publicClassLibrary.Entitys
         [SugarColumn(ColumnName = "SubShippingFee", ColumnDescription = "子订单运费")]
         public decimal SubShippingFee { get; set; }
 
-        
+
+
+
+        [SugarColumn(ColumnName = "OrderStatus", ColumnDescription = "订单状态:0-待处理 1-已发货 2-已完成 3-已关闭")]
+        public int OrderStatus { get; set; }
+
+        [SugarColumn(ColumnName = "ShippingNo", ColumnDescription = "物流单号", Length = 100)]
+        public string ShippingNo { get; set; }
+
+
+
+        [SugarColumn(ColumnName = "ShippingTime", ColumnDescription = "发货时间")]
+        public DateTime ShippingTime { get; set; }
+
+        [SugarColumn(ColumnName = "CompleteTime", ColumnDescription = "完成时间")]
+        public DateTime CompleteTime { get; set; }
+
+        [SugarColumn(ColumnName = "ReceiverName", ColumnDescription = "收货人姓名", Length = 50)]
+        public string ReceiverName { get; set; }
+
+        [SugarColumn(ColumnName = "ReceiverPhone", ColumnDescription = "收货人电话", Length = 20)]
+        public string ReceiverPhone { get; set; }
+
+        [SugarColumn(ColumnName = "ReceiverAddress", ColumnDescription = "收货地址", Length = 255)]
+        public string ReceiverAddress { get; set; }
 
         /*
-          [SugarColumn(ColumnName = "OrderStatus", ColumnDescription = "订单状态:0-待处理 1-已发货 2-已完成 3-已关闭")]
-          public int OrderStatus { get; set; }
 
-          [SugarColumn(ColumnName = "ShippingNo", ColumnDescription = "物流单号", Length = 100)]
-          public string ShippingNo { get; set; }
+            [SugarColumn(ColumnName = "RiskLevel", ColumnDescription = "风险等级:0-正常 1-可疑 2-高风险")]
+            public int RiskLevel { get; set; }
 
-          [SugarColumn(ColumnName = "ShippingTime", ColumnDescription = "发货时间")]
-          public DateTime ShippingTime { get; set; }
+            [SugarColumn(ColumnName = "RiskReason", ColumnDescription = "风险原因", Length = 255)]
+            public string RiskReason { get; set; }
 
-          [SugarColumn(ColumnName = "CompleteTime", ColumnDescription = "完成时间")]
-          public DateTime CompleteTime { get; set; }
-
-          [SugarColumn(ColumnName = "ReceiverName", ColumnDescription = "收货人姓名", Length = 50)]
-          public string ReceiverName { get; set; }
-
-          [SugarColumn(ColumnName = "ReceiverPhone", ColumnDescription = "收货人电话", Length = 20)]
-          public string ReceiverPhone { get; set; }
-
-          [SugarColumn(ColumnName = "ReceiverAddress", ColumnDescription = "收货地址", Length = 255)]
-          public string ReceiverAddress { get; set; }
-
-          [SugarColumn(ColumnName = "RiskLevel", ColumnDescription = "风险等级:0-正常 1-可疑 2-高风险")]
-          public int RiskLevel { get; set; }
-
-          [SugarColumn(ColumnName = "RiskReason", ColumnDescription = "风险原因", Length = 255)]
-          public string RiskReason { get; set; }
-
-          [SugarColumn(ColumnName = "Remark", ColumnDescription = "订单备注")]
-          public string Remark { get; set; }
-        */
+            [SugarColumn(ColumnName = "Remark", ColumnDescription = "订单备注")]
+            public string Remark { get; set; }
+          */
 
         [SugarColumn(ColumnName = "CreateTime", ColumnDescription = "创建时间")]
         public DateTime CreateTime { get; set; } = DateTime.Now;

@@ -6,12 +6,15 @@ namespace shopadminService.Interfaces
     public interface IOrderService
     {
 
-        List<Orders> getOrdersPageList(int pageIndex, int pageSize, int appType, string? searchKey, int? orderStatus, out int totalCount);
+        ResultObject getOrdersPageList(int pageIndex, int pageSize, int appType, string? searchKey, int? orderStatus);
 
         ResultObject updateOrders(Orders oV0, string[] updateColums = null);
 
-        Orders getOrdersById(int id);
+        ResultObject getOrdersById(int id);
+
+        ResultObject getOrdersSubsPageList(int pageIndex, int pageSize, int appType, string? searchKey, int? orderStatus);
 
 
+        ResultObject getOrdersSubsById(int id);
     }
 }
