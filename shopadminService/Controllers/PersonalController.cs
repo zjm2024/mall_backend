@@ -12,25 +12,25 @@ namespace shopadminService.Controllers
 {
     [Anonymous]
     [ApiController]
-    [Route("shopadminApi/DataDict/[action]")]
+    [Route("shopadminApi/Personal/[action]")]
 
 
 
-    public class DataDictController : ControllerBase
+    public class PersonalController : ControllerBase
     {
 
-        private readonly ILogger<DataDictController> _logger;
-        private readonly IDataDictService _datadictservice;
-        public DataDictController(ILogger<DataDictController> logger, IDataDictService datadictservice)
+        private readonly ILogger<PersonalController> _logger;
+        private readonly IPersonalService _personalservice;
+        public PersonalController(ILogger<PersonalController> logger, IPersonalService personalservice)
         {
             _logger = logger;
-            _datadictservice = datadictservice;
+            _personalservice = personalservice;
         }
 
 
 
         [HttpPost]
-        public ResultObject getDataDictPageList([FromBody] JsonElement formData)
+        public ResultObject getPersonalPageList([FromBody] JsonElement formData)
         {
             JsonElement jValue;
             string json = ((!formData.TryGetProperty("params", out jValue)) ? "" : jValue.GetRawText());
@@ -45,7 +45,7 @@ namespace shopadminService.Controllers
             int? status = ((!jsonElement.TryGetProperty("status", out outjValue)) ? null : outjValue.GetInt32());
             string? searchKey = ((!jsonElement.TryGetProperty("searchKey", out outjValue)) ? null : outjValue.GetString());
 
-            var outobj = _datadictservice.getDataDictPageList(pageIndex, pageSize, appType, businessId, searchKey, status);
+            var outobj = _personalservice.getPersonalPageList(pageIndex, pageSize, appType, businessId, searchKey, status);
             return outobj;
 
         }
@@ -56,23 +56,22 @@ namespace shopadminService.Controllers
         /// 根据ID获取实体
         /// </summary>
         [HttpGet]
-        public ResultObject getDataDictById(int id)
+        public ResultObject getPersonalById(int id)
         {
-            var outobj = _datadictservice.getDataDictById(id);
+            var outobj = _personalservice.getPersonalById(id);
             return outobj;
         }
 
 
-
         /// <summary>
-        /// 更新数据字典
+        /// 更新商户
         /// </summary>
         [HttpPost]
-        public async Task<ResultObject> updateDataDict([FromBody] JsonElement formData)
+        public ResultObject updatePersonal([FromBody] JsonElement formData)
         {
             JsonElement jValue;
             string json = ((!formData.TryGetProperty("data", out jValue)) ? "" : jValue.GetRawText());
-            var entity = JsonConvert.DeserializeObject(json, typeof(DataDicts));
+            var entity = JsonConvert.DeserializeObject(json, typeof(Business));
             if (entity == null)
             {
                 return new ResultObject() { Flag = 0, Message = "参数为空!", Result = null };
@@ -91,26 +90,17 @@ namespace shopadminService.Controllers
 
 
 
-            return await _datadictservice.updateDataDict((DataDicts)entity, updateColums);
+            return _personalservice.updatePersonal((Personal)entity, updateColums);
         }
 
 
         /// <summary>
-        /// 删除数据字典
+        /// 删除商户
         /// </summary>
         [HttpGet]
-        public Task<ResultObject> deleteDataDict(int id)
+        public ResultObject deletePersonal(int id)
         {
-            return _datadictservice.deleteDataDict(id);
-        }
-
-
-        [HttpGet]
-        public async Task<ResultObject> getDataDictByCode(string code)
-        {
-            var resultObject = await _datadictservice.getDataDictByCode(code);
-            return resultObject;
-
+            return _personalservice.deletePersonal(id);
         }
 
 

@@ -15,7 +15,13 @@ namespace publicClassLibrary.Entitys
     {
         [SugarColumn(IsPrimaryKey = true, IsIdentity = true)]
         public int DataDictId { get; set; }
-   
+
+        [SugarColumn(ColumnName = "AppType", ColumnDescription = "应用类型")]
+        public int AppType { get; set; }
+
+        [SugarColumn(ColumnName = "BusinessId", ColumnDescription = "商家ID")]
+        public int BusinessId { get; set; }
+
         [SugarColumn(ColumnName = "Code", ColumnDescription = "字典编号", Length = 100)]
         public string Code { get; set; }
 
@@ -26,8 +32,7 @@ namespace publicClassLibrary.Entitys
         public string Value { get; set; }
 
 
-        [SugarColumn(ColumnName = "AppType", ColumnDescription = "应用类型")]
-        public int AppType { get; set; }
+
 
         [SugarColumn(ColumnName = "Status", ColumnDescription = "状态:0-审批，1-上线，2-下线，3-删除")]
         public int Status { get; set; }

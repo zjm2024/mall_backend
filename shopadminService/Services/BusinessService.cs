@@ -1,41 +1,35 @@
 ﻿using Dm.util;
-using Newtonsoft.Json;
 using publicClassLibrary.Entitys;
 using publicClassLibrary.Helpers;
-using publicClassLibrary.Interfaces;
 using publicClassLibrary.Models;
 using publicClassLibrary.Services;
 using shopadminService.Interfaces;
 using SqlSugar;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace shopadminService.Services
 {
-    public  class DataDictService : BaseService, IDataDictService
+    public  class BusinessService : BaseService, IBusinessService
     {
         private readonly SqlSugarHelper _dbHelper;
         private readonly ISqlSugarClient _db;
-        private readonly IRedisQueueService _redisService;
-        public DataDictService(SqlSugarHelper dbHelper, ISqlSugarClient db, IRedisQueueService redisService) : base(dbHelper)
+        public BusinessService(SqlSugarHelper dbHelper, ISqlSugarClient db) : base(dbHelper)
         {
             _dbHelper = dbHelper;
             _db = db;
-            _redisService = redisService;
         }
 
-        public ResultObject getDataDictPageList(int pageIndex, int pageSize, int appType, int businessId, string? searchKey, int? status)
+        public ResultObject getBusinessPageList(int pageIndex, int pageSize, int appType, string? searchKey, int? status)
         {
             try
             {
                 //加排序
                 List<OrderByModel> orderbyList = OrderByModel.Create(
-                   new OrderByModel() { FieldName = "CreateTime", OrderByType = OrderByType.Desc });
+                   new OrderByModel() { FieldName = "CreatedAt", OrderByType = OrderByType.Desc });
 
                 //加查询条件
                 var conModels = new List<IConditionalModel>();
                 conModels.Add(new ConditionalModel { FieldName = "AppType", ConditionalType = ConditionalType.Equal, FieldValue = appType.toString() });
-                conModels.add(new ConditionalModel { FieldName = "BusinessId", ConditionalType = ConditionalType.Equal, FieldValue = businessId.toString() });
 
                 if (status != null)
                 {
@@ -51,11 +45,11 @@ namespace shopadminService.Services
 
                        new KeyValuePair<WhereType, ConditionalModel>(
                        WhereType.And,
-                       new ConditionalModel(){FieldName ="Code",ConditionalType=ConditionalType.Like,FieldValue=searchKey.toString()}),
+                       new ConditionalModel(){FieldName ="BusinessNo",ConditionalType=ConditionalType.Like,FieldValue=searchKey.toString()}),
 
                        new KeyValuePair<WhereType, ConditionalModel> (
                        WhereType.Or,
-                       new ConditionalModel() {FieldName ="Name",ConditionalType=ConditionalType.Like,FieldValue=searchKey.toString()}),
+                       new ConditionalModel() {FieldName ="BusinessName",ConditionalType=ConditionalType.Like,FieldValue=searchKey.toString()}),
 
 
                     }
@@ -64,15 +58,13 @@ namespace shopadminService.Services
 
                 var totalCount=0;
 
-                var outobj = GetPageList<DataDicts, dynamic>(pageIndex, pageSize, out totalCount, conModels, it => new {
-                    dataDictId=it.DataDictId,
-                    code = it.Code,
-                    name = it.Name,
-                    value = it.Value,
+                var outobj = GetPageList<Business, dynamic>(pageIndex, pageSize, out totalCount, conModels, it => new {
+                    businessId = it.BusinessId,
+                    businessNo = it.BusinessNo,
+                    businessName = it.BusinessName,
                     appType = it.AppType,
-                    businessId=it.BusinessId,
                     status = it.Status,
-                    createTime = SqlFunc.ToString(it.CreateTime)
+                    createdAt = SqlFunc.ToString(it.CreatedAt)
                 }, orderbyList).ToList();
 
 
@@ -85,10 +77,10 @@ namespace shopadminService.Services
             }
         }
 
-        public async Task<ResultObject> updateDataDict(DataDicts bV0, string[] updateColums = null)
+        public ResultObject updateBusiness(Business bV0, string[] updateColums = null)
         {
             //判断
-            var dataDictId = bV0.DataDictId;
+            var businessId = bV0.BusinessId;
             _db.Ado.BeginTran();
             try
             {
@@ -96,18 +88,12 @@ namespace shopadminService.Services
 
 
 
-                if (dataDictId == 0)
+                if (businessId == 0)
                 {
-                    int id = Add<DataDicts>(bV0);
-                    bV0.DataDictId = id;
+                    int id = Add<Business>(bV0);
+                    bV0.BusinessId = id;
                     if (id > 0)
-                    {
-                        //缓存
-                        var key = bV0.Code;
-                        var value = bV0.Value;
-                        await _redisService.SetStringAsync(key, value);
-                        resultobj = new ResultObject() { Flag = 1, Message = "添加成功!", Result = bV0 };
-                    } 
+                        resultobj= new ResultObject() { Flag = 1, Message = "添加成功!", Result = bV0 };
                     else
                         resultobj= new ResultObject() { Flag = 0, Message = "添加失败!", Result = null };
 
@@ -119,17 +105,11 @@ namespace shopadminService.Services
                     Array.Resize(ref updateColums, updateColums.Length + 1);
                     updateColums[updateColums.Length - 1] = "updateTime";
 
-                    bool isSuccess = Update<DataDicts>(bV0, updateColums);
+                    bool isSuccess = Update<Business>(bV0, updateColums);
                     if (isSuccess)
-                    {
-                        //缓存
-                        var key = bV0.Code;
-                        var value = bV0.Value;
-                        await _redisService.SetStringAsync(key, value);
-                        resultobj = new ResultObject() { Flag = 1, Message = "更新成功!", Result = bV0 };
-                    }
+                        resultobj= new ResultObject() { Flag = 1, Message = "更新成功!", Result = bV0 };
                     else
-                        resultobj = new ResultObject() { Flag = 0, Message = "更新失败!", Result = null };
+                        resultobj= new ResultObject() { Flag = 0, Message = "更新失败!", Result = null };
                 }
 
                 _db.Ado.CommitTran();
@@ -144,11 +124,11 @@ namespace shopadminService.Services
             }
         }
 
-        public ResultObject getDataDictById(int id)
+        public ResultObject getBusinessById(int id)
         {
             try
             {
-                var outobj = GetById<DataDicts>(id);
+                var outobj = GetById<Business>(id);
                 return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj };
             }
             catch (Exception ex)
@@ -157,20 +137,18 @@ namespace shopadminService.Services
             }
         }
 
-        public async Task<ResultObject> deleteDataDict(int id)
+
+
+        public ResultObject deleteBusiness(int id)
         {
             _db.Ado.BeginTran();
             try
             {
-                var bV0= GetById<DataDicts>(id);
                 dynamic resultobj;
-                bool isSuccess = Delete<DataDicts>(id);
+                bool isSuccess = Delete<Business>(id);
                 if (isSuccess)
                 {
                     resultobj= new ResultObject() { Flag = 1, Message = "删除成功!", Result = id };
-                    //缓存
-                    var key = bV0.Code;
-                    await _redisService.DelKeyAsync(key);
                 }
                 else
                 {
@@ -189,35 +167,6 @@ namespace shopadminService.Services
             }
 
         }
-
-
-        public async Task<ResultObject> getDataDictByCode(string code)
-        {
-            try
-            {
-                //先取缓存没有则取数据库
-                var key = code;
-                var value = await _redisService.GetStringAsync(key);
-
-                if (value == null)  //测试 从数据库中读取
-                {
-                    var objout = _db.Queryable<DataDicts>().Where(it => it.Code == code).Select(it => new { it.Value }).ToList();
-                    if (objout.Count > 0)
-                        value = objout[0].Value;
-                    else
-                        value = "";
-
-                }
-
-
-                return new ResultObject() { Flag = 1, Message = "获取成功!", Result = value };
-            }
-            catch (Exception ex)
-            {
-                return new ResultObject() { Flag = 0, Message = "获取失败!", Result = ex.ToString() };
-            }
-        }
-
 
 
     }

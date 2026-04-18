@@ -6,7 +6,7 @@ namespace shopadminService.Interfaces
     public interface ISeckillService
     {
 
-        ResultObject getSeckillPageList(int pageIndex, int pageSize, int appType,int businessId, string? searchKey, int? status);
+        ResultObject getSeckillPageList(int pageIndex, int pageSize, int appType,int businessId, string? activityDate, string? seckillTime, string? searchKey, int? status);
 
         ResultObject updateSeckill(SeckillActivities sV0, string[] updateColums = null);
 
@@ -14,8 +14,7 @@ namespace shopadminService.Interfaces
 
         ResultObject getSeckillById(int id);
 
-        ResultObject getTimeOptions(int appType);
-
+    
 
     }
 }

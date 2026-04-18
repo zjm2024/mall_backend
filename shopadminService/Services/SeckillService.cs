@@ -22,7 +22,7 @@ namespace shopadminService.Services
             _redisQueueService = redisQueueService;
         }
 
-        public ResultObject getSeckillPageList(int pageIndex, int pageSize, int appType,int businessId, string? searchKey, int? status)
+        public ResultObject getSeckillPageList(int pageIndex, int pageSize, int appType,int businessId, string? activityDate, string? seckillTime, string? searchKey, int? status)
         {
             try
             {
@@ -36,10 +36,23 @@ namespace shopadminService.Services
                 conModels.add(new ConditionalModel { FieldName = "s.BusinessId", ConditionalType = ConditionalType.Equal, FieldValue = businessId.toString() });
 
 
+
+                if (activityDate != null)
+                {
+                    conModels.add(new ConditionalModel { FieldName = "s.ActivityDate", ConditionalType = ConditionalType.Equal, FieldValue = activityDate.toString() });
+                }
+
+                if (seckillTime != null)
+                {
+                    conModels.add(new ConditionalModel { FieldName = "s.SeckillTime", ConditionalType = ConditionalType.Equal, FieldValue = seckillTime.toString() });
+                }
+
                 if (status != null)
                 {
                     conModels.add(new ConditionalModel { FieldName = "s.Status", ConditionalType = ConditionalType.Equal, FieldValue = status.toString() });
                 }
+
+
 
                 if (searchKey != null)
                 {
@@ -222,18 +235,6 @@ namespace shopadminService.Services
             }
         }
 
-        public ResultObject getTimeOptions(int appType)
-        {
-            try
-            {
-                var outobj = GetList<SeckillTimers,dynamic>(it=>it.AppType== appType, it => new { it.TimerId,it.SeckillTime,it.SeckillMinutes,it.SortOrder }).OrderBy(it=>it.SortOrder);
-                return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj };
-            }
-            catch (Exception ex)
-            {
-                return new ResultObject() { Flag = 0, Message = "获取失败!", Result = ex.ToString() };
-            }
-        }
 
     }
 }

@@ -9,27 +9,28 @@ using System.Text;
 
 namespace shopadminService.Services
 {
-    public  class ShopService : BaseService, IShopService
+    public  class PersonalService : BaseService, IPersonalService
     {
         private readonly SqlSugarHelper _dbHelper;
         private readonly ISqlSugarClient _db;
-        public ShopService(SqlSugarHelper dbHelper, ISqlSugarClient db) : base(dbHelper)
+        public PersonalService(SqlSugarHelper dbHelper, ISqlSugarClient db) : base(dbHelper)
         {
             _dbHelper = dbHelper;
             _db = db;
         }
 
-        public ResultObject getShopsPageList(int pageIndex, int pageSize, int appType, string? searchKey, int? status)
+        public ResultObject getPersonalPageList(int pageIndex, int pageSize, int appType,int businessId, string? searchKey, int? status)
         {
             try
             {
                 //加排序
                 List<OrderByModel> orderbyList = OrderByModel.Create(
-                   new OrderByModel() { FieldName = "CreateTime", OrderByType = OrderByType.Desc });
+                   new OrderByModel() { FieldName = "CreatedAt", OrderByType = OrderByType.Desc });
 
                 //加查询条件
                 var conModels = new List<IConditionalModel>();
                 conModels.Add(new ConditionalModel { FieldName = "AppType", ConditionalType = ConditionalType.Equal, FieldValue = appType.toString() });
+                conModels.add(new ConditionalModel { FieldName = "BusinessId", ConditionalType = ConditionalType.Equal, FieldValue = businessId.toString() });
 
                 if (status != null)
                 {
@@ -45,11 +46,11 @@ namespace shopadminService.Services
 
                        new KeyValuePair<WhereType, ConditionalModel>(
                        WhereType.And,
-                       new ConditionalModel(){FieldName ="BusinessNo",ConditionalType=ConditionalType.Like,FieldValue=searchKey.toString()}),
+                       new ConditionalModel(){FieldName ="Phone",ConditionalType=ConditionalType.Like,FieldValue=searchKey.toString()}),
 
                        new KeyValuePair<WhereType, ConditionalModel> (
                        WhereType.Or,
-                       new ConditionalModel() {FieldName ="BusinessName",ConditionalType=ConditionalType.Like,FieldValue=searchKey.toString()}),
+                       new ConditionalModel() {FieldName ="Name",ConditionalType=ConditionalType.Like,FieldValue=searchKey.toString()}),
 
 
                     }
@@ -58,13 +59,18 @@ namespace shopadminService.Services
 
                 var totalCount=0;
 
-                var outobj = GetPageList<Business, dynamic>(pageIndex, pageSize, out totalCount, conModels, it => new {
-                    businessId = it.BusinessId,
-                    businessNo = it.BusinessNo,
-                    businessName = it.BusinessName,
+                var outobj = GetPageList<Personal, dynamic>(pageIndex, pageSize, out totalCount, conModels, it => new {
+                    personalId = it.PersonalId,
+                    name = it.Name,
+                    phone = it.Phone,
+                    email=it.Email,
+                    weChat=it.WeChat,
+                    headimg=it.Headimg,
+                    business = it.Business,
+                    position = it.Position,
                     appType = it.AppType,
-                    status = it.Status,
-                    createTime = SqlFunc.ToString(it.CreateTime)
+      
+                    createdAt = SqlFunc.ToString(it.CreatedAt)
                 }, orderbyList).ToList();
 
 
@@ -77,10 +83,10 @@ namespace shopadminService.Services
             }
         }
 
-        public ResultObject updateShops(Business bV0, string[] updateColums = null)
+        public ResultObject updatePersonal(Personal pV0, string[] updateColums = null)
         {
             //判断
-            var businessId = bV0.BusinessId;
+            var personalId = pV0.PersonalId;
             _db.Ado.BeginTran();
             try
             {
@@ -88,26 +94,26 @@ namespace shopadminService.Services
 
 
 
-                if (businessId == 0)
+                if (personalId == 0)
                 {
-                    int id = Add<Business>(bV0);
-                    bV0.BusinessId = id;
+                    int id = Add<Personal>(pV0);
+                    pV0.PersonalId = id;
                     if (id > 0)
-                        resultobj= new ResultObject() { Flag = 1, Message = "添加成功!", Result = bV0 };
+                        resultobj= new ResultObject() { Flag = 1, Message = "添加成功!", Result = pV0 };
                     else
                         resultobj= new ResultObject() { Flag = 0, Message = "添加失败!", Result = null };
 
                 }
                 else
                 {
-                    bV0.UpdateTime = DateTime.Now;
+                    pV0.UpdateTime = DateTime.Now;
 
                     Array.Resize(ref updateColums, updateColums.Length + 1);
                     updateColums[updateColums.Length - 1] = "updateTime";
 
-                    bool isSuccess = Update<Business>(bV0, updateColums);
+                    bool isSuccess = Update<Personal>(pV0, updateColums);
                     if (isSuccess)
-                        resultobj= new ResultObject() { Flag = 1, Message = "更新成功!", Result = bV0 };
+                        resultobj= new ResultObject() { Flag = 1, Message = "更新成功!", Result = pV0 };
                     else
                         resultobj= new ResultObject() { Flag = 0, Message = "更新失败!", Result = null };
                 }
@@ -124,11 +130,11 @@ namespace shopadminService.Services
             }
         }
 
-        public ResultObject getShopsById(int id)
+        public ResultObject getPersonalById(int id)
         {
             try
             {
-                var outobj = GetById<Business>(id);
+                var outobj = GetById<Personal>(id);
                 return new ResultObject() { Flag = 1, Message = "获取成功!", Result = outobj };
             }
             catch (Exception ex)
@@ -139,13 +145,13 @@ namespace shopadminService.Services
 
 
 
-        public ResultObject deleteShops(int id)
+        public ResultObject deletePersonal(int id)
         {
             _db.Ado.BeginTran();
             try
             {
                 dynamic resultobj;
-                bool isSuccess = Delete<Business>(id);
+                bool isSuccess = Delete<Personal>(id);
                 if (isSuccess)
                 {
                     resultobj= new ResultObject() { Flag = 1, Message = "删除成功!", Result = id };

@@ -65,10 +65,11 @@ namespace shopadminService.Services
         {
             //判断分类名称是否重复
             string categoryName = cVO.CategoryName;
+            int businessId = cVO.BusinessId;
             int categoryId = cVO.CategoryId;
             if (categoryId == 0)
             {
-                var isExist = RecordExist<Categories, dynamic>(it => it.CategoryName == categoryName, it => it.CategoryId);
+                var isExist = RecordExist<Categories, dynamic>(it => it.CategoryName == categoryName && it.BusinessId== businessId, it => it.CategoryId);
 
                 if (isExist)
                 {

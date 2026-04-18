@@ -12,25 +12,25 @@ namespace shopadminService.Controllers
 {
     [Anonymous]
     [ApiController]
-    [Route("shopadminApi/Shop/[action]")]
+    [Route("shopadminApi/Business/[action]")]
 
 
 
-    public class ShopController : ControllerBase
+    public class BusinessController : ControllerBase
     {
 
-        private readonly ILogger<ShopController> _logger;
-        private readonly IShopService _shopservice;
-        public ShopController(ILogger<ShopController> logger, IShopService shopservice)
+        private readonly ILogger<BusinessController> _logger;
+        private readonly IBusinessService _businessservice;
+        public BusinessController(ILogger<BusinessController> logger, IBusinessService businessservice)
         {
             _logger = logger;
-            _shopservice = shopservice;
+            _businessservice = businessservice;
         }
 
 
 
         [HttpPost]
-        public ResultObject getShopsPageList([FromBody] JsonElement formData)
+        public ResultObject getBusinessPageList([FromBody] JsonElement formData)
         {
             JsonElement jValue;
             string json = ((!formData.TryGetProperty("params", out jValue)) ? "" : jValue.GetRawText());
@@ -43,7 +43,7 @@ namespace shopadminService.Controllers
             int? status = ((!jsonElement.TryGetProperty("status", out outjValue)) ? null : outjValue.GetInt32());
             string? searchKey = ((!jsonElement.TryGetProperty("searchKey", out outjValue)) ? null : outjValue.GetString());
 
-            var outobj = _shopservice.getShopsPageList(pageIndex, pageSize, appType, searchKey, status);
+            var outobj = _businessservice.getBusinessPageList(pageIndex, pageSize, appType, searchKey, status);
             return outobj;
 
         }
@@ -54,9 +54,9 @@ namespace shopadminService.Controllers
         /// 根据ID获取实体
         /// </summary>
         [HttpGet]
-        public ResultObject getShopsById(int id)
+        public ResultObject getBusinessById(int id)
         {
-            var outobj = _shopservice.getShopsById(id);
+            var outobj = _businessservice.getBusinessById(id);
             return outobj;
         }
 
@@ -65,7 +65,7 @@ namespace shopadminService.Controllers
         /// 更新商户
         /// </summary>
         [HttpPost]
-        public ResultObject updateShops([FromBody] JsonElement formData)
+        public ResultObject updateBusiness([FromBody] JsonElement formData)
         {
             JsonElement jValue;
             string json = ((!formData.TryGetProperty("data", out jValue)) ? "" : jValue.GetRawText());
@@ -88,7 +88,7 @@ namespace shopadminService.Controllers
 
 
 
-            return _shopservice.updateShops((Business)entity, updateColums);
+            return _businessservice.updateBusiness((Business)entity, updateColums);
         }
 
 
@@ -96,9 +96,9 @@ namespace shopadminService.Controllers
         /// 删除商户
         /// </summary>
         [HttpGet]
-        public ResultObject deleteShops(int id)
+        public ResultObject deleteBusiness(int id)
         {
-            return _shopservice.deleteShops(id);
+            return _businessservice.deleteBusiness(id);
         }
 
 

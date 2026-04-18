@@ -33,7 +33,7 @@ namespace shopmallService.Services
                 var key = code;
                 var value=await _redisService.GetStringAsync(key);
 
-               // if (value == null)  //测试 从数据库中读取
+                if (value == null)  //测试 从数据库中读取
                 {
                     var objout = _db.Queryable<DataDicts>().Where(it => it.Code == code).Select(it=> new { it.Value }).ToList();
                     if (objout.Count > 0)
@@ -43,9 +43,9 @@ namespace shopmallService.Services
 
                 }
 
-                var entitys = JsonConvert.DeserializeObject<List<SeckillTimers>>(value);
+       
                 
-                return new ResultObject() { Flag = 1, Message = "获取成功!", Result = entitys };
+                return new ResultObject() { Flag = 1, Message = "获取成功!", Result = value };
             }
             catch (Exception ex)
             {

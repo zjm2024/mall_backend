@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Quartz;
+using shopmallService.Interfaces;
 using shopmallService.Services;
 using System.Security.Principal;
 
@@ -8,9 +9,11 @@ namespace shopmallService.Hubs
     public class ChatJob : IJob
     {
         // private readonly IHubContext<ChatHub> _hubContext;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<ChatJob> _logger;
-        public ChatJob(ILogger<ChatJob> logger)  // IHubContext<ChatHub> hubContext
+        public ChatJob(IServiceScopeFactory scopeFactory,ILogger<ChatJob> logger)  // IHubContext<ChatHub> hubContext
         {
+            _scopeFactory = scopeFactory;
             _logger = logger;
             // _hubContext = hubContext;
         }
@@ -29,6 +32,17 @@ namespace shopmallService.Hubs
 
             var jobDataMap = context.MergedJobDataMap;
             var fixedflag = jobDataMap.GetString("fixedflag");
+            
+            if (fixedflag == "hotseckill")
+            {
+                //预热秒杀活动到redis
+                var businessId = jobDataMap.GetString("businessId");
+                var seckillTime = "";
+                using var scope = _scopeFactory.CreateScope();
+                var seckillService = scope.ServiceProvider.GetRequiredService<ISeckillService>();
+
+                await seckillService.hotSeckillProductsAsync(businessId, seckillTime);
+            }
 
 
             if (fixedflag == "seckilltimers")
@@ -42,7 +56,7 @@ namespace shopmallService.Hubs
                     type = "SECKILL_TIMES",
                     data = new
                     {
-                
+
                         result = seckilltime,
                         flag = 0,
                         message = message
@@ -52,7 +66,7 @@ namespace shopmallService.Hubs
 
 
 
-        
+
             }
         }
     }

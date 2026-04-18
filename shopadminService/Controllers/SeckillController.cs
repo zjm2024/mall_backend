@@ -35,11 +35,16 @@ namespace shopadminService.Controllers
             int appType = Convert.ToInt32(jsonElement.GetProperty("appType").ToString());
             int businessId = Convert.ToInt32(jsonElement.GetProperty("businessId").ToString());
 
+          
+
             JsonElement outjValue;
             int? status = ((!jsonElement.TryGetProperty("status", out outjValue)) ? null : outjValue.GetInt32());
             string? searchKey = ((!jsonElement.TryGetProperty("searchKey", out outjValue)) ? null : outjValue.GetString());
+            string? activityDate = ((!jsonElement.TryGetProperty("activityDate", out outjValue)) ? null : outjValue.GetString());
+            string? seckillTime = ((!jsonElement.TryGetProperty("seckillTime", out outjValue)) ? null : outjValue.GetString());
 
-            var outobj = _seckillservice.getSeckillPageList(pageIndex, pageSize, appType, businessId,searchKey, status);
+
+            var outobj = _seckillservice.getSeckillPageList(pageIndex, pageSize, appType, businessId, activityDate, seckillTime,searchKey, status);
             return outobj;
 
         }
@@ -117,12 +122,6 @@ namespace shopadminService.Controllers
              return await _seckillservice.checkSeckill((SeckillActivities)entity, updateColums);
         }
 
-        [HttpGet]
-        public ResultObject getTimeOptions(int appType)
-        {
-            var outobj = _seckillservice.getTimeOptions(appType);
-            return outobj;
-        }
     }
     
 }

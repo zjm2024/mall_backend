@@ -24,14 +24,7 @@ builder.Services.AddSharedCors(); //3.配置跨域请求
 
 builder.Services.AddSharedUpLoad(builder); //4.配置上传文件
 
-
-
-
-
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-    ConnectionMultiplexer.Connect("localhost:6379,abortConnect=false")
-);
-
+builder.Services.AddSharedRedis(builder); //5.使用Redis
 
 // 注册Redis消息队列服务
 builder.Services.AddSingleton<IRedisQueueService, RedisQueueService>();
@@ -44,7 +37,8 @@ builder.Services.AddScoped<ICategoryService, CategoryService>(); //类型服务
 builder.Services.AddScoped<IProductService, ProductService>(); //商品服务
 builder.Services.AddScoped<IOrderService, OrderService>(); //订单服务
 builder.Services.AddScoped<ISeckillService, SeckillService>(); //秒杀服务
-builder.Services.AddScoped<IShopService, ShopService>(); //店铺服务
+builder.Services.AddScoped<IBusinessService, BusinessService>(); //店铺服务
+builder.Services.AddScoped<IPersonalService, PersonalService>(); //员工服务
 builder.Services.AddScoped<IDataDictService, DataDictService>(); //数据字典服务
 
 builder.Services.AddScoped<IUpLoadFileService, UpLoadFileService>(); //上传文件服务

@@ -1,4 +1,3 @@
-using Newtonsoft.Json.Serialization;
 using publicClassLibrary.Configs;
 using publicClassLibrary.Interfaces;
 using publicClassLibrary.Services;
@@ -6,11 +5,14 @@ using publicClassLibrary.TokenMange;
 using shopmallService.Hubs;
 using shopmallService.Interfaces;
 using shopmallService.Services;
-using StackExchange.Redis;
+using shopmallService.Jobs;
+using FluentScheduler;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddSharedSwagger(); // 1.使用Swagger共享配置
 
@@ -18,11 +20,9 @@ builder.Services.AddSharedDb(builder);    // 2.使用SqlSugar共享配置
 
 builder.Services.AddSharedCors(); //3.配置跨域请求
 
-builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-    ConnectionMultiplexer.Connect("localhost:6379,abortConnect=false")
-);
+
+builder.Services.AddSharedRedis(builder); //5.使用Redis
 
 
 // 注册Redis消息队列服务
@@ -50,6 +50,10 @@ builder.Services.AddSingleton<ChatJob>();
 
 
 builder.Services.AddSingleton<ChatJobFactory>();
+
+
+
+builder.Services.AddSingleton<SeckillTimesJob>();
 
 
 // 添加SignalR服务
@@ -95,6 +99,17 @@ app.UseWebSockets();//webstock 关键
 app.UseMiddleware<shopmallService.Services.WebSocketMiddleware>();
 
 app.MapControllers();
+
+
+// 初始化 FluentScheduler 定时任务
+JobManager.Initialize(new JobRegistry(app.Services));
+
+// 优雅停止：应用关闭时停止任务
+app.Lifetime.ApplicationStopping.Register(() =>
+{
+    JobManager.StopAndBlock();
+});
+
 /*
 
 app.UseEndpoints(endpoints =>

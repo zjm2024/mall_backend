@@ -1,11 +1,15 @@
 ﻿using Dm.util;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using Newtonsoft.Json.Linq;
 using publicClassLibrary.Entitys;
 using publicClassLibrary.Helpers;
 using publicClassLibrary.Interfaces;
 using publicClassLibrary.Models;
 using publicClassLibrary.Services;
+using publicClassLibrary.Consts;
 using shopmallService.Interfaces;
 using SqlSugar;
+using StackExchange.Redis;
 using System.Text;
 
 namespace shopmallService.Services
@@ -14,10 +18,12 @@ namespace shopmallService.Services
     {
         private readonly SqlSugarHelper _dbHelper;
         private readonly ISqlSugarClient _db;
-        public SeckillService(SqlSugarHelper dbHelper,ISqlSugarClient db) : base(dbHelper)
+        private readonly IRedisQueueService _redisQueueService;
+        public SeckillService(SqlSugarHelper dbHelper, ISqlSugarClient db, IRedisQueueService redisQueueService) : base(dbHelper)
         {
             _dbHelper = dbHelper;
             _db = db;
+            _redisQueueService = redisQueueService;
         }
 
         public ResultObject updateSeckillStatus(SeckillActivities sV0, string[] updateColums = null)
@@ -53,5 +59,81 @@ namespace shopmallService.Services
             }
         }
 
+
+        private  List<SeckillActivities> getSeckillActiveData(string seckillTime)
+        {
+            var outobj = _db.Queryable<SeckillActivities>().Where(it => it.SeckillTime == seckillTime).OrderBy(it=>it.BusinessId).ToList();
+            return outobj;
+   
+        }
+
+
+
+        /// <summary>
+        /// 秒杀前预热：将商品数据写入 Redis
+        /// </summary>
+        public async Task hotSeckillProductsAsync(string businessId,string seckillTime)
+        {
+            var seckillKey = $"seckill:{seckillTime:yyyyMMddHHmm}";
+
+            // 1. 从数据库查询该时刻的秒杀活动商品
+            var seckills =  getSeckillActiveData(seckillTime);
+
+            // 2. 使用 Redis Pipeline 批量写入，减少网络往返
+             await  _redisQueueService.CreateBatchSeckillActivityAsync(seckillKey,seckills);
+
+          
+        }
+
+
+
+        //去重保存所有秒杀时间点
+        public async Task<bool> saveAllSeckillTimesAsync()
+        {
+            try
+            {
+                int pageSize = 1000;
+                var list = await _redisQueueService.ScanKeysAsync(CacheConst.KeySeckillTimesPattern, pageSize);
+                var values = new List<string>();
+                foreach (var key in list)
+                {
+                    var json= await _redisQueueService.GetStringAsync(key);
+                    var timesList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<SeckillTimers>>(json);
+
+                    foreach (var timer in timesList)
+                    {
+                        var seckillTime = timer.SeckillTime;
+                        var obj = values.Find(it => it == seckillTime);
+                        if (obj == null)
+                        {
+                            values.Add(seckillTime);
+                        }
+                    }
+          
+                }
+
+                if (values.Count > 0)
+                {
+                    RedisValue[] redisValues = values.Select(v => (RedisValue)v).ToArray();
+                    string json = System.Text.Json.JsonSerializer.Serialize(values);
+                    await _redisQueueService.SetStringAsync(CacheConst.KeySeckillTimes, json);
+                    return true;
+
+                }
+                else
+                {
+                    // 删除旧数据
+                    await _redisQueueService.DelKeyAsync(CacheConst.KeySeckillTimes);
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+
+        }
+
     }
+
 }

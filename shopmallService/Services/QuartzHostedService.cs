@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualBasic;
 using Newtonsoft.Json;
+using publicClassLibrary.Consts;
 using publicClassLibrary.Entitys;
 using publicClassLibrary.Interfaces;
 using publicClassLibrary.Services;
@@ -55,28 +56,31 @@ namespace shopmallService.Services
         
 
                     var nowstring = DateTime.Now.ToString(_dateformat);
-                DateTime now = DateTime.ParseExact(nowstring, _dateformat, null);
+                    DateTime now = DateTime.ParseExact(nowstring, _dateformat, null);
+
+                    //查询当前有秒杀活动的商城
+
 
                     //查询单据 8:00,8:30 各个时间点 要形成一个 触发任务清单
                     //先读缓存。如果缓存没有则读数据库
-                    var key = "sys_datadict_seckilltimers";
-                    var value = "";
-                      var objout=  await datadictService.getDataDictByCode(key);
+                     var objout=  await datadictService.getDataDictByCode(CacheConst.KeySeckillTimes);
 
 
                     if (objout.Flag == 1 && objout.Result != null)
                     {
+                        string json = objout.Result.ToString();
+                        List<string> list = System.Text.Json.JsonSerializer.Deserialize<List<string>>(json);
 
-                        List<SeckillTimers> list = (List < SeckillTimers > )objout.Result;
+          
         
-                        foreach (SeckillTimers item in list)
+                        foreach (var time in list)
                         {
-                            var taskid = "task_begin" + item.SortOrder;
+                            var taskid = "task_begin:" + time;
                             var fixedflag = "seckilltimers";
-                            var seckilltime = item.SeckillTime;
-                            var message = item.SeckillTime+"秒杀时间段开始";
+                            var seckilltime = time;
+                            var message = time + "秒杀时间段开始";
                              
-                            DateTime autotime = DateTime.Parse($"2000-01-01 {item.SeckillTime}");
+                            DateTime autotime = DateTime.Parse($"2000-01-01 {time}");
                             int hh = ((DateTime)autotime).Hour;
                             int mm = ((DateTime)autotime).Minute;
 

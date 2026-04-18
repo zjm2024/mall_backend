@@ -14,12 +14,18 @@ namespace publicClassLibrary.Interfaces
 
         Task<bool> DelKeyAsync(string key);
 
+        Task<List<string>> ScanKeysAsync(string pattern, int pageSize = 1000);
 
+        Task<List<string>> GetKeysAsync(string pattern);
 
 
         Task<bool> PublishOrderAsync(Orders order);
 
         Task<Orders> ConsumeOrderAsync();
+
+
+
+        Task CreateBatchSeckillActivityAsync(string seckillKey, List<SeckillActivities> seckills);
 
         Task SetSeckillActivityAsync(SeckillActivities seckill);
 
