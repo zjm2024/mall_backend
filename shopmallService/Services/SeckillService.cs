@@ -60,9 +60,9 @@ namespace shopmallService.Services
         }
 
 
-        private  List<SeckillActivities> getSeckillActiveData(string seckillTime)
+        private  List<SeckillActivities> getSeckillActiveData(int businessId,DateTime seckillTime)
         {
-            var outobj = _db.Queryable<SeckillActivities>().Where(it => it.SeckillTime == seckillTime).OrderBy(it=>it.BusinessId).ToList();
+            var outobj = _db.Queryable<SeckillActivities>().Where(it =>it.BusinessId== businessId && SqlFunc.ToDateShort(it.StartTime) == SqlFunc.ToDateShort(seckillTime)).OrderBy(it=>it.BusinessId).ToList();
             return outobj;
    
         }
@@ -72,12 +72,12 @@ namespace shopmallService.Services
         /// <summary>
         /// 秒杀前预热：将商品数据写入 Redis
         /// </summary>
-        public async Task hotSeckillProductsAsync(string businessId,string seckillTime)
+        public async Task saveHotSeckillProductsAsync(int businessId,DateTime seckillTime)
         {
-            var seckillKey = $"seckill:{seckillTime:yyyyMMddHHmm}";
+            var seckillKey = $"businessid:{businessId}:seckill:{seckillTime:yyyyMMddHHmm}";
 
             // 1. 从数据库查询该时刻的秒杀活动商品
-            var seckills =  getSeckillActiveData(seckillTime);
+            var seckills =  getSeckillActiveData(businessId,seckillTime);
 
             // 2. 使用 Redis Pipeline 批量写入，减少网络往返
              await  _redisQueueService.CreateBatchSeckillActivityAsync(seckillKey,seckills);
@@ -85,7 +85,14 @@ namespace shopmallService.Services
           
         }
 
-
+        /// <summary>
+        /// 秒杀将商品数据从 Redis 读取
+        /// </summary>
+        public async Task getHotSeckillProductsAsync(int businessId, DateTime seckillTime)
+        {
+            var seckillKey = $"businessid:{businessId}:seckill:{seckillTime:yyyyMMddHHmm}";
+            var seckills = await _redisQueueService.LoadBatchSeckillActivityAsync(seckillKey);
+        }
 
         //去重保存所有秒杀时间点
         public async Task<bool> saveAllSeckillTimesAsync()

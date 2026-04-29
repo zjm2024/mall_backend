@@ -27,6 +27,8 @@ namespace publicClassLibrary.Interfaces
 
         Task CreateBatchSeckillActivityAsync(string seckillKey, List<SeckillActivities> seckills);
 
+        Task<List<SeckillActivities>> LoadBatchSeckillActivityAsync(string seckillKey);
+
         Task SetSeckillActivityAsync(SeckillActivities seckill);
 
         Task<SeckillActivities?> GetSeckillActivityAsync(int seckillId);

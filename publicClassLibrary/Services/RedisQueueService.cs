@@ -143,7 +143,8 @@ namespace publicClassLibrary.Services
 
                 // Hash 存储商品详情
                 var hashEntries = new HashEntry[]
-                {
+                {    
+                new("businessId", product.BusinessId),
                 new("seckillId", product.SeckillId),
                 new("productNo", product.ProductNo),
                 new("productId", product.ProductId),
@@ -151,7 +152,7 @@ namespace publicClassLibrary.Services
                 new("seckillPrice", product.SeckillPrice.ToString()),
                 new("activityStock", product.ActivityStock.ToString()),
                 new("usedStock", product.UsedStock.ToString()),
-               // new("soldPercent", product.SoldPercent.ToString()),
+                new("soldPercent", product.SoldPercent.ToString()),
                 new("startTime", product.StartTime.ToString("O")),
                 new("endTime", product.EndTime.ToString("O")),
                 new("status", "0") // 0=未开始, 1=进行中, 2=已结束
@@ -177,6 +178,47 @@ namespace publicClassLibrary.Services
 
             batch.Execute();
             await Task.WhenAll(tasks);
+        }
+
+
+
+
+        /// <summary>
+        /// 秒杀时：从 Redis 读取所有预热商品
+        /// </summary>
+        public async Task<List<SeckillActivities>> LoadBatchSeckillActivityAsync(string seckillKey)
+        {
+            // 1. 读取商品 ID 列表
+            var idList = await _db.SetMembersAsync(seckillKey);
+
+            if (idList == null || !idList.Any())
+                return new List<SeckillActivities>();
+
+            // 2. 批量读取商品详情（Pipeline）
+            var tasks = new List<Task<RedisValue>>();
+            foreach (var id in idList)
+            {
+                // var productKey = $"{seckillKey}:product:{product.ProductId}";
+
+                // string key = $"{GoodsPrefix}{id}";
+                string key = "ddd";
+                tasks.Add(_db.StringGetAsync(key));
+            }
+
+            var values = await Task.WhenAll(tasks);
+
+            // 3. 反序列化
+            var result = new List<SeckillActivities>();
+            foreach (var val in values)
+            {
+                if (!val.IsNullOrEmpty)
+                {
+                   // var goods = JsonSerializer.Deserialize<SeckillActivities>(val.ToString());
+                  //  if (goods != null) result.Add(goods);
+                }
+            }
+
+            return result;
         }
 
 

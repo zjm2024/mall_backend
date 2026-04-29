@@ -7,8 +7,14 @@ namespace shopmallService.Interfaces
     {
         ResultObject updateSeckillStatus(SeckillActivities sV0, string[] updateColums = null);
 
-        Task hotSeckillProductsAsync(string businessId, string seckillTime);
+        Task saveHotSeckillProductsAsync(int businessId, DateTime seckillTime);
 
-        Task<bool> saveAllSeckillTimesAsync();
+        Task getHotSeckillProductsAsync(int businessId, DateTime seckillTime);
+        
+        
+        
+  
+
+        Task<bool> saveAllSeckillTimesAsync();      //没有使用
     }
 }

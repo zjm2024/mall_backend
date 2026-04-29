@@ -1,15 +1,15 @@
 ﻿using Quartz;
 using Quartz.Spi;
-namespace shopmallService.Hubs
+namespace shopmallService.Jobs
 {
 
     /// <summary>
     /// Job工厂，从服务容器中取Job
     /// </summary>
-    public class ChatJobFactory : IJobFactory
+    public class JobFactory : IJobFactory
     {
         protected readonly IServiceProvider _serviceProvider;
-        public ChatJobFactory(IServiceProvider serviceProvider)
+        public JobFactory(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }

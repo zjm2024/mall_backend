@@ -7,6 +7,8 @@ using shopmallService.Interfaces;
 using shopmallService.Services;
 using shopmallService.Jobs;
 using FluentScheduler;
+using Quartz;
+using Quartz.Spi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,14 +46,14 @@ builder.Services.AddHostedService<OrderBackgroundService>();
 // 注册后台服务处理秒杀消息
 builder.Services.AddHostedService<SeckillBackgroundService>();
 // 注册后台定时发送消息
-builder.Services.AddHostedService<QuartzHostedService>();
-
-builder.Services.AddSingleton<ChatJob>();
+//builder.Services.AddHostedService<QuartzHostedService>();
 
 
-builder.Services.AddSingleton<ChatJobFactory>();
+builder.Services.AddSingleton<JobFactory>();
+builder.Services.AddSingleton<JobChat>();
 
-
+// 注册 Quartz 管理器
+builder.Services.AddSingleton<JobScheduler>();
 
 builder.Services.AddSingleton<SeckillTimesJob>();
 

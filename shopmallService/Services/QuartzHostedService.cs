@@ -9,6 +9,7 @@ using Quartz.Impl;
 using Quartz.Impl.Matchers;
 using shopmallService.Hubs;
 using shopmallService.Interfaces;
+using shopmallService.Jobs;
 using SqlSugar;
 using System.Collections.Generic;
 using System.Net.Mail;
@@ -22,10 +23,10 @@ namespace shopmallService.Services
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger _logger;
         private readonly IRedisQueueService _redisQueueService;
-        private readonly ChatJobFactory _jobFactory;
+        private readonly JobFactory _jobFactory;
         private readonly IScheduler _scheduler;
         private string _dateformat = "yyyy-MM-dd HH:mm";
-        public QuartzHostedService(IServiceScopeFactory scopeFactory, ILogger<QuartzHostedService> logger, IRedisQueueService redisQueueService, ChatJobFactory jobFactory)
+        public QuartzHostedService(IServiceScopeFactory scopeFactory, ILogger<QuartzHostedService> logger, IRedisQueueService redisQueueService, JobFactory jobFactory)
         {
             _scopeFactory = scopeFactory;
             _logger = logger;
@@ -71,7 +72,7 @@ namespace shopmallService.Services
                         string json = objout.Result.ToString();
                         List<string> list = System.Text.Json.JsonSerializer.Deserialize<List<string>>(json);
 
-          
+               
         
                         foreach (var time in list)
                         {
@@ -91,11 +92,12 @@ namespace shopmallService.Services
                             var jobKey = new JobKey(taskid, "group"); // 替换为你的作业名和组名
                             var jobExists = await _scheduler.CheckExists(jobKey);
 
-
+                            /*
 
                             if (!jobExists)
                             {
-                                //指定触发时间 触发时间在实际提醒时间后延迟5秒
+                                //指定触发时间 
+                                //两个任务 1.触发时间点提前5分钟 预热商品  2.触发时间点延后5秒加载商品
                                 DateTime triggerTime = autotime.AddSeconds(5);
                                 //指定自定义的JobFactory
                                 _scheduler.JobFactory = _jobFactory;
@@ -126,6 +128,8 @@ namespace shopmallService.Services
 
 
                             }
+
+                            */
                         }
 
 

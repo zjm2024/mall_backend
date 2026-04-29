@@ -1,5 +1,8 @@
 ﻿using Dm.util;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using publicClassLibrary.Consts;
 using publicClassLibrary.Entitys;
 using publicClassLibrary.Helpers;
 using publicClassLibrary.Interfaces;
@@ -7,8 +10,11 @@ using publicClassLibrary.Models;
 using publicClassLibrary.Services;
 using shopadminService.Interfaces;
 using SqlSugar;
+using StackExchange.Redis;
+using System.Collections;
 using System.Text;
 using System.Threading.Tasks;
+using static Dm.net.buffer.ByteArrayBuffer;
 
 namespace shopadminService.Services
 {
@@ -132,6 +138,12 @@ namespace shopadminService.Services
                         resultobj = new ResultObject() { Flag = 0, Message = "更新失败!", Result = null };
                 }
 
+
+                if (bV0.Code.IndexOf(CacheConst.KeySeckillTimes) > 0)
+                {
+                    await autoSaveSeckillTimes();
+                }
+
                 _db.Ado.CommitTran();
 
                 return resultobj;
@@ -177,6 +189,11 @@ namespace shopadminService.Services
                     resultobj= new ResultObject() { Flag = 0, Message = "删除失败!", Result = null };
                 }
 
+
+                if (bV0.Code.IndexOf(CacheConst.KeySeckillTimes) > 0)
+                {
+                    await autoSaveSeckillTimes();
+                }
                 _db.Ado.CommitTran();
                 return resultobj;
 
@@ -218,7 +235,74 @@ namespace shopadminService.Services
             }
         }
 
+        private async Task autoSaveSeckillTimes()
+        {
 
+            var values = new List<dynamic>();
+            var list = GetList<DataDicts, dynamic>(it => it.Code.EndsWith(CacheConst.KeySeckillTimes) && it.Code != CacheConst.KeySeckillTimes, it => new { BusinessId = it.BusinessId, Value= it.Value});
+            foreach (var item in list)
+            {
+                var json = ((dynamic)item).Value;
+                var timesList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<SeckillTimers>>(json);
+                foreach (var timer in timesList)
+                {
+                    var seckillTime = timer.SeckillTime;
+                    var obj = values.Find(it => it.seckillTime == seckillTime);
+                    if (obj == null)
+                    {
+                        var bList = list.Where(it=> it.Value.Contains(seckillTime));
+                        ArrayList barray = new ArrayList();
+                        foreach (var b in bList)
+                        {
+                            barray.Add(new { businessId = b.BusinessId });
+                        }
+             
+
+                        var objitem = new { seckillTime = seckillTime, businessList= barray };
+                        values.Add(objitem);
+                    }
+                }
+
+            }
+
+            var objlist = GetList<DataDicts>(it => it.Code == CacheConst.KeySeckillTimes).ToList();
+            if (values.Count > 0)
+            {
+
+                string json = System.Text.Json.JsonSerializer.Serialize(values);
+                if (objlist.Count > 0)
+                {
+                    var updateVo = objlist[0];
+                    updateVo.Value = json;
+                    Update<DataDicts>(updateVo, ["Value"]);
+                }
+                else
+                {
+                    var addVo = new DataDicts();
+                    addVo.DataDictId = 0;
+                    addVo.BusinessId = 0;
+                    addVo.Code = CacheConst.KeySeckillTimes;
+                    addVo.Name = "系统自动汇总秒杀时间点";
+                    addVo.Value = json;
+
+                    Add<DataDicts>(addVo);
+                }
+                //保存到缓存
+
+                await _redisService.SetStringAsync(CacheConst.KeySeckillTimes, json);
+            }
+            else
+            {
+                if (objlist.Count > 0)
+                {
+                    Delete<DataDicts>(objlist[0].DataDictId);
+                }
+                await _redisService.DelKeyAsync(CacheConst.KeySeckillTimes);
+
+
+            }
+
+        }
 
     }
 }
